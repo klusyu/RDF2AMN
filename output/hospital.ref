@@ -1,9 +1,21 @@
 REFINEMENT hospital
 
+REFINES Hospital
+
+SEES
+	ContextRDF
+
 SETS
 	IC = {BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC}
 
 VARIABLES
-	IEXT
+	ICEXT
+
+INVARIANT
+	ICEXT : IC -> POW(IR) &
+	ICEXT(Thing) = IR
+
+INITIALISATION
+{Thing |-> IR, BenignNeoplasm |-> { }, Cancer |-> { }, LungCancer |-> { }, MalignantNeoplasm |-> { }, NSCLC |-> { }, Neoplasm |-> { }, Patient |-> { }, Person |-> { }, SCLC |-> { }}
 
 END

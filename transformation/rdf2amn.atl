@@ -10,36 +10,104 @@ rule RDF2Refinement{
 		rd: SW!RDFDocument
 	using {
 		sos : Set(AMN!Operation) = Set{};
-		avs: String = 'IEXT';
+		avs: String = 'ICEXT';
 	}
 	to 
-		-- SEES
+		
+		ref: AMN!Refinement(
+			name <- rd.owlOntology->collect(c|c.shortName),
+			refines <- am,
+			sees <- ctxt,
+			sets <- classSet,
+			abstractVariables <- Set{avs},
+			invariant <- Sequence{inVariant},
+			initialization <- icextInit
+			
+		),
+		--- SEES
 		ctxt: AMN!AbstractMachine(
 			name <- 'ContextRDF'
 		),
-		
-		-- REFINES
-		
+		--- REFINES
 		am: AMN!AbstractMachine(
-			name <- 'hospital'
+			name <- 'Hospital'
 		),
-		
-		
 		classSet: AMN!SetDecl(
 			name <- 'IC',
 			element <- rd.owlClass->collect(c|c.shortName)
 		),
+		--- INVARIANT
+		inVariant: AMN!Conjunction(
+			predicate <- Sequence{icPred, icPred2}	
+		),
+		icPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{leftVar, icExp}
+		),
+		leftVar: AMN!Variable(name <- avs),
+		icExp: AMN!AtomicPredicate(
+			sign <- '->',
+			expression <- Sequence{icVar, powIR}
+		),
+		icVar: AMN!Variable(name <- 'IC'),
+		irVar: AMN!Variable(name <- 'IR'),
+		powIR: AMN!FunctionalExpression(
+			sign <- 'POW',
+			expression <- irVar	
+		),
+		icPred2: AMN!AtomicPredicate(
+			sign <- '=',
+			expression <- Sequence{icThing, ricThing}
+		),
+		icThing: AMN!FunctionalExpression(
+			sign <- avs,
+			expression <- icThingVar	
+		),
+		icThingVar: AMN!Variable(name <- 'Thing'),
+		ricThing: AMN!Variable(name <- 'IR'),
 		
-		ref: AMN!Refinement(
-			name <- rd.owlOntology->collect(c|c.shortName),
-			--refines <- am,
-			--sees <- ctxt,
-			sets <- classSet,
-			abstractVariables <- avs
-			
-			
+		
+		--- Initialization
+		icextInit: AMN!SetValue(
+			value <- Set{initThing},
+			value <- rd.owlClass->collect(c | thisModule.initClass(c))	
+		),
+		initThing: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{lThing, rThing}
+		),
+		lThing: AMN!StringValue(
+			value <- 'Thing'	
+		),
+		rThing:	AMN!StringValue(
+			value <- 'IR'
 		)
+		
 	do {
 		thisModule.debug('done');	
 	}
 }
+
+
+lazy rule initClass {
+	from c: SW!Class
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{leftVar, rightVar}
+		),
+		leftVar: AMN!StringValue(
+			value <- c.shortName	
+		),
+		rightVar: AMN!StringValue(
+			value <- '{ }'	
+		)
+}
+
+lazy rule initSubClassOf{
+	from c: SW!Class
+	to
+		
+	
+}
+

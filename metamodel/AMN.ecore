@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ecore:EPackage xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="AMN"
-    nsURI="http://synthesis.ipi.ac.ru/amn/" nsPrefix="amn">
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="AMN" nsURI="http://synthesis.ipi.ac.ru/amn/" nsPrefix="amn">
   <eClassifiers xsi:type="ecore:EClass" name="Element">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
@@ -14,8 +12,6 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="promotes" upperBound="-1"
         eType="#//AMNExpression/CompoundId" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
-        eType="#//AMNPredicate/Predicate" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="invariant" upperBound="-1"
         eType="#//AMNPredicate/Predicate" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="assertions" upperBound="-1"
@@ -28,6 +24,8 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="concreteVariables" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
+        eType="#//AMNPredicate/Predicate" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AbstractMachine" eSuperTypes="#//Machine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="constraints" upperBound="-1"
@@ -67,12 +65,12 @@
         eType="#//AMNExpression/Expression" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Operation" eSuperTypes="#//Element">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="substitution" lowerBound="1"
-        eType="#//AMNSubstitution/Substitution" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="inputParams" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="outputParams" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="substitution" lowerBound="1"
+        eType="#//AMNSubstitution/Substitution" containment="true"/>
   </eClassifiers>
   <eSubpackages name="AMNPredicate" nsURI="http://synthesis.ipi.ac.ru/amn/predicate"
       nsPrefix="amn-pred">
@@ -161,6 +159,32 @@
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1"
           eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="StructType" eSuperTypes="#//AMNExpression/Expression">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="element" upperBound="-1"
+          eType="#//AMNExpression/StructTypeElement" containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="StructTypeElement">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1"
+          eType="#//AMNExpression/Expression"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="RecordValue" eSuperTypes="#//AMNExpression/Expression">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="element" upperBound="-1"
+          eType="#//AMNExpression/RecordValueElement" containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="RecordValueElement">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="value" lowerBound="1"
+          eType="#//AMNExpression/Expression"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="RecordLookup" eSuperTypes="#//AMNExpression/Expression">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="field" lowerBound="1"
+          upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
   </eSubpackages>
   <eSubpackages name="AMNSubstitution" nsURI="http://synthesis.ipi.ac.ru/amn/substitution"
       nsPrefix="amn-subst">
@@ -193,19 +217,35 @@
           upperBound="-1" eType="#//AMNSubstitution/Substitution" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="IfSubstitution" eSuperTypes="#//AMNSubstitution/Substitution">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="if" lowerBound="1" upperBound="-1"
-          eType="#//AMNPredicate/Predicate" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="ifPart" lowerBound="1"
+          upperBound="-1" eType="#//AMNPredicate/Predicate" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="thenPart" lowerBound="1"
+          eType="#//AMNSubstitution/Substitution" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="elsePart" eType="#//AMNSubstitution/Substitution"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="elseifThen" upperBound="-1"
+          eType="#//AMNSubstitution/ElseifThen"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="ElseifThen">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="elseif" lowerBound="1"
+          upperBound="-1" eType="#//AMNPredicate/Predicate" containment="true"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="then" lowerBound="1"
-          upperBound="-1" eType="#//AMNSubstitution/Substitution" containment="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="else" eType="#//AMNSubstitution/Substitution"/>
+          eType="#//AMNSubstitution/Substitution" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Select" eSuperTypes="#//AMNSubstitution/Substitution">
       <eStructuralFeatures xsi:type="ecore:EReference" name="select" lowerBound="1"
           upperBound="-1" eType="#//AMNPredicate/Predicate" containment="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="when" lowerBound="1"
-          upperBound="-1" eType="#//AMNSubstitution/Substitution" containment="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="else" eType="#//AMNSubstitution/Substitution"
+      <eStructuralFeatures xsi:type="ecore:EReference" name="thenPart" lowerBound="1"
+          eType="#//AMNSubstitution/Substitution" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="elsePart" eType="#//AMNSubstitution/Substitution"
           containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="whenThen" upperBound="-1"
+          eType="#//AMNSubstitution/WhenThen"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="WhenThen">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="whenPart" lowerBound="1"
+          eType="#//AMNPredicate/Predicate" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="thenPart" lowerBound="1"
+          eType="#//AMNSubstitution/Substitution" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Case" eSuperTypes="#//AMNSubstitution/Substitution">
       <eStructuralFeatures xsi:type="ecore:EReference" name="case" lowerBound="1"
