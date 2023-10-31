@@ -7,7 +7,7 @@ create OUT: AMN from IN: SW;
 
 rule RDF2Refinement{
 	from 
-		oc: SW!RDFDocument
+		rd: SW!RDFDocument
 	using {
 		sos : Set(AMN!Operation) = Set{};
 		avs: String = 'IEXT';
@@ -20,18 +20,18 @@ rule RDF2Refinement{
 		
 		-- REFINES
 		
-		am: AMN!Machine(
+		am: AMN!AbstractMachine(
 			name <- 'hospital'
 		),
 		
 		
 		classSet: AMN!SetDecl(
 			name <- 'IC',
-			element <- oc.owlClass->collect(c|c.shortName)
+			element <- rd.owlClass->collect(c|c.shortName)
 		),
 		
 		ref: AMN!Refinement(
-			name <- oc.owlOntology.shortName,
+			name <- rd.owlOntology->collect(c|c.shortName),
 			--refines <- am,
 			--sees <- ctxt,
 			sets <- classSet,
