@@ -1,0 +1,9 @@
+REFINEMENT hospital
+
+SETS
+	IC = {BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC}
+
+VARIABLES
+	IEXT
+
+END

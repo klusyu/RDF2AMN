@@ -7,7 +7,13 @@
 			<outModel name="OUT" model="hospital.amn" metamodel="AMN" />
 		</atl.launch>
 
-		<atl.saveModel model="hospital.amn" path="./out.xmi" />
+		<atl.saveModel model="hospital.amn" path="./hospital-amn.xmi" />
+		
+		
+		<atl.launch  path="./transformation/AMN2Text.asm">
+			<inmodel name="IN" model="hospital.amn"/>			
+			<library name="ATL2String" path="./transformation/AMN2String.asm"/>
+		</atl.launch>	
 
 	</target>
 
