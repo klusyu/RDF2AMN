@@ -10,6 +10,7 @@ rule RDF2Refinement{
 		oc: SW!RDFDocument
 	using {
 		sos : Set(AMN!Operation) = Set{};
+		avs: String = 'IEXT';
 	}
 	to 
 		-- SEES
@@ -19,9 +20,8 @@ rule RDF2Refinement{
 		
 		-- REFINES
 		
-		am: AMN!AbstractMachine(
-			name <- 'ContextRDF',
-			operations <- sos
+		am: AMN!Machine(
+			name <- 'hospital'
 		),
 		
 		
@@ -32,10 +32,14 @@ rule RDF2Refinement{
 		
 		ref: AMN!Refinement(
 			name <- oc.owlOntology.shortName,
-			refines <- am,
-			sees <- ctxt,
-			sets <- classSet
+			--refines <- am,
+			--sees <- ctxt,
+			sets <- classSet,
+			abstractVariables <- avs
+			
 			
 		)
-		
+	do {
+		thisModule.debug('done');	
+	}
 }

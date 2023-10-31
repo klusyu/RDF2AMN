@@ -1,38 +1,20 @@
-<?xml version="1.0"?>
-<project name="ALL2AMNApply" default="all" basedir=".">
-
-	<property name="metamodelPath" value="metamodel/" />
-	<property name="sourcePath" value="input/" />
-	<property name="targetPath" value="output/" />
-	<property name="transformationPath" value="transformation/" />	
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project" default="default">
 	
-	<property name="sourceName" value="rdf_input" />
-	<property name="targetName" value="${sourceName}-amn" />
-	<property name="transformationName" value="ALL2AMN" />	
-	
-	
-	<target name="all">
-		<!-- Loading metamodels -->		
-		<atl.loadModel name="AMN" metamodel="%EMF" path="${metamodelPath}AMN.ecore"/>
-		<atl.loadModel name="SW" metamodel="%EMF" path="${metamodelPath}SW.ecore"/>
-		
-		
-		<!-- Loading input model -->
-		<atl.loadModel name="${sourceName}" metamodel="RRO" path="${sourcePath}${sourceName}.xmi" />
-  
-		<atl.launch path="${transformationPath}${transformationName}.asm">
-		    <inmodel name="IN" model="${sourceName}"/>
-			<outModel name="OUT" model="${targetName}" metamodel="AMN" />
+	<target name="default" depends="modelsLoading">
+		<atl.launch path="./transformation/rdf2amn.atl">
+			<inModel name="IN" model="hospital.rdf" />
+			<outModel name="OUT" model="hospital.amn" metamodel="AMN" />
 		</atl.launch>
 
-		<atl.saveModel model="${targetName}" path="${targetPath}${targetName}.ecore"/>		
-		
-		
-		<atl.launch  path="${transformationPath}AMN2Text.asm">
-			<inmodel name="IN" model="${targetName}"/>			
-			<library name="ATL2String" path="${transformationPath}AMN2String.asm"/>
-		</atl.launch>			
-		
+		<atl.saveModel model="hospital.amn" path="./out.xmi" />
+
+	</target>
+
+	<target name="modelsLoading">
+		<atl.loadModel modelHandler="EMF" name="AMN" metamodel="MOF" path="./metamodel/AMN.ecore" />
+		<atl.loadModel modelHandler="EMF" name="SW" metamodel="MOF" path="./metamodel/SW.ecore" />
+		<atl.loadModel modelHandler="EMF" name="hospital.rdf" metamodel="SW" path="./input/rdf_input.xmi" />
 	</target>
 
 </project>

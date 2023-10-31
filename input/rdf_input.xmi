@@ -1,11 +1,8 @@
-<?xml version="1.0"?>
-<RDFDocument xmlns="http://example.org/hospital#"
-     xml:base="http://example.org/hospital"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<?xml version="1.0" encoding="ASCII"?>
+<rdf:RDFDocument xmi:version="2.0" 
+	xmlns:xmi="http://www.omg.org/XMI" 
+	xmlns:rdf="https://www.w3.org/TR/rdf-schema/rdf">
+	
     <owlOntology about="http://example.org/hospital" shortName="hospital"/>
     
 
@@ -148,7 +145,7 @@
     <owlClass about="http://example.org/hospital#SCLC" shortName="SCLC">
         <subClassOf resource="http://example.org/hospital#LungCancer"/>
     </owlClass>
-</RDFDocument>
+</rdf:RDFDocument>
 
 
 
