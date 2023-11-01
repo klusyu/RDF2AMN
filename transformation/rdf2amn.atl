@@ -11,6 +11,8 @@ rule RDF2Refinement{
 	using {
 		sos : Set(AMN!Operation) = Set{};
 		avs: String = 'ICEXT';
+		objectProperties: Set(SW!ObjectProperty) = rd.owlObjectProperty;
+		datatypeProperties: Set(SW!DatatypeProperty) = rd.owlDatatypeProperty;
 	}
 	to 
 		
@@ -19,6 +21,8 @@ rule RDF2Refinement{
 			refines <- am,
 			sees <- ctxt,
 			sets <- classSet,
+			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
+			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o)),
 			abstractVariables <- Set{avs},
 			invariant <- Sequence{inVariant},
 			initialization <- icextInit
@@ -32,13 +36,17 @@ rule RDF2Refinement{
 		am: AMN!AbstractMachine(
 			name <- 'Hospital'
 		),
+		--- SETS
 		classSet: AMN!SetDecl(
 			name <- 'IC',
 			element <- rd.owlClass->collect(c|c.shortName)
 		),
 		--- INVARIANT
 		inVariant: AMN!Conjunction(
-			predicate <- Sequence{icPred, icPred2}	
+			predicate <- Sequence{icPred, icPred2},
+			predicate <- rd.owlClass->select(c | 
+				not c.subClassOf.oclIsUndefined())
+				->collect(c|thisModule.initClassHierarchy(c))
 		),
 		icPred: AMN!AtomicPredicate(
 			sign <- ':',
@@ -84,30 +92,232 @@ rule RDF2Refinement{
 		)
 		
 	do {
-		thisModule.debug('done');	
+		
+		thisModule.debug('RDF2Refinement');	
 	}
 }
 
-
+--- Init Class
 lazy rule initClass {
 	from c: SW!Class
 	to
 		ap: AMN!AtomicPredicate(
 			sign <- '|->',
-			expression <- Sequence{leftVar, rightVar}
+			expression <- Sequence{leftExp, rightExp}
 		),
-		leftVar: AMN!StringValue(
+		leftExp: AMN!StringValue(
 			value <- c.shortName	
 		),
-		rightVar: AMN!StringValue(
+		rightExp: AMN!StringValue(
 			value <- '{ }'	
 		)
 }
 
-lazy rule initSubClassOf{
+--- Init the SubClassOf of Classes
+lazy rule initClassHierarchy{
 	from c: SW!Class
 	to
-		
-	
+		ap: AMN!AtomicPredicate(
+			sign <- '<:',
+			expression <- Sequence{leftExp, rightExp}
+		),
+		leftExp: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- Sequence{leftVar}
+		),
+		leftVar: AMN!StringValue(
+			value <- c.subClassOf.shortName	
+		),
+		rightExp: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- Sequence{rightVar}
+		),
+		rightVar: AMN!StringValue(
+			value <- c.shortName
+		)
 }
 
+--- Init ObjectProperty and DatatypeProperty
+lazy rule initPropertySet{
+	from o: SW!Property
+	using {
+		range: SW!Class = o.range;
+		domain: SW!Class = o.domain;
+		setName: String = 'IP';
+	}
+	to
+		--- SETS
+		initSet: AMN!SetDecl(
+			element <- Sequence{o.shortName}	
+		),
+		--- ABSTRACT_CONSTANS
+		initAbstractConstants: AMN!StringValue(),
+		namedConstant: AMN!Variable(
+			name <- 'IL' + o.shortName	
+		),
+		--- PROPERTIES
+		initProperties: AMN!CompoundPredicate(),
+		iriPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{namedConstant, iriExp}
+		),
+		iriExp: AMN!AtomicPredicate(
+			sign <- '+->',
+			expression <- Sequence{iriExpLeftVar, iriExpRightVar}
+		),
+		iriExpLeftVar: AMN!Variable(
+			name <- 'IRI'	
+		),
+		iriExpRightVar: AMN!Variable(
+			name <- o.shortName
+		),
+		finPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{namedConstant, finExp}
+		),
+		finExp: AMN!FunctionalExpression(
+			sign <- 'FIN',
+			expression <- Sequence{namedConstant}
+		)
+		--- ABSTRACT_VARIABLES
+		--- INVARIANT
+		--- INITIALISATION
+	do {
+		thisModule.debug('initProperty');
+		--- set SETS
+		if (range.oclIsUndefined()) {
+			-- enumeration datatype
+			initSet.name <- 'IP_' + o.shortName + '_Range';
+			initAbstractConstants.value <- 'IL_' + o.shortName;
+			initProperties.predicate <- Sequence{iriPred, finPred};
+		}
+		else{
+			thisModule.debug('range:' + range.shortName);
+			if (thisModule.isBuiltinDatatype(range.shortName)) {
+				-- built-in datatype
+				initSet.name <- 'IP_' + range.shortName + '_Range';
+			}
+			else {
+				-- non built-in datatype
+				initSet.name <- 'IP';
+			}
+			thisModule.debug('initSet.name:' + initSet.name);
+		}
+		
+	}
+}
+
+lazy rule initPropertyAbstractConstans{
+	from o: SW!Property
+	using {
+		range: SW!Class = o.range;
+		domain: SW!Class = o.domain;
+		setName: String = 'IP';
+	}
+	to
+		--- SETS
+		initSet: AMN!SetDecl(
+			element <- Sequence{o.shortName}	
+		),
+		--- ABSTRACT_CONSTANS
+		initAbstractConstants: AMN!StringValue(),
+		namedConstant: AMN!Variable(
+			name <- 'IL' + o.shortName	
+		),
+		--- PROPERTIES
+		initProperties: AMN!CompoundPredicate(),
+		iriPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{namedConstant, iriExp}
+		),
+		iriExp: AMN!AtomicPredicate(
+			sign <- '+->',
+			expression <- Sequence{iriExpLeftVar, iriExpRightVar}
+		),
+		iriExpLeftVar: AMN!Variable(
+			name <- 'IRI'	
+		),
+		iriExpRightVar: AMN!Variable(
+			name <- o.shortName
+		),
+		finPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{namedConstant, finExp}
+		),
+		finExp: AMN!FunctionalExpression(
+			sign <- 'FIN',
+			expression <- Sequence{namedConstant}
+		)
+		--- ABSTRACT_VARIABLES
+		--- INVARIANT
+		--- INITIALISATION
+	do {
+		thisModule.debug('initProperty');
+		--- set SETS
+		if (range.oclIsUndefined()) {
+			-- enumeration datatype
+			initSet.name <- 'IP_' + o.shortName + '_Range';
+			initAbstractConstants.value <- 'IL_' + o.shortName;
+			initProperties.predicate <- Sequence{iriPred, finPred};
+		}
+		else{
+			thisModule.debug('range:' + range.shortName);
+			if (thisModule.isBuiltinDatatype(range.shortName)) {
+				-- built-in datatype
+				initSet.name <- 'IP_' + range.shortName + '_Range';
+			}
+			else {
+				-- non built-in datatype
+				initSet.name <- 'IP';
+			}
+			thisModule.debug('initSet.name:' + initSet.name);
+		}
+		
+	}
+}
+
+helper def: isBuiltinDatatype(t: String): Boolean =
+	let builtinTypes: Set(String) = Set{'string', 'real', 'bool'} in
+	if builtinTypes.includes(t) then
+		true
+	else
+		false
+	endif
+; 
+
+	
+rule createPred2Variables(s: String, leftVar: String, rightVar: String) {
+	to ap: AMN!AtomicPredicate(
+		sign <- s,
+		expression <- Sequence{leftExp, rightExp}
+	),
+	leftExp: AMN!Variable(
+		name <- leftVar
+	),
+	rightExp: AMN!Variable(
+		name <- rightVar
+	)
+	do {
+		thisModule.debug('createPred2Variables');
+	}
+}
+
+rule createVariablePredicate(s: String, leftVar: String, pred: AMN!Predicate) {
+	to ap: AMN!AtomicPredicate(
+		sign <- s,
+		expression <- Sequence{leftExp, pred}
+	),
+	leftExp: AMN!Variable(
+		name <- leftVar
+	)
+}
+
+rule createFunctionalPredicate(s: String, var: String) {
+	to fp: AMN!FunctionalPredicate(
+		sign <- s,
+		expression <- e	
+	),
+	e: AMN!Varaible(
+		name <- var	
+	)
+}

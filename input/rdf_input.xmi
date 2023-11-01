@@ -23,8 +23,8 @@
 
 
     <owlObjectProperty about="http://example.org/hospital#hasNeoplasm" shortName="hasNeoplasm">
-        <domain resource="http://example.org/hospital#Patient"/>
-        <range resource="http://example.org/hospital#Neoplasm"/>
+        <domain resource="http://example.org/hospital#Patient" shortName="Patient"/>
+        <range resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
     </owlObjectProperty>
     
 
@@ -33,7 +33,7 @@
 
 
     <owlObjectProperty about="http://example.org/hospital#hasStage" shortName="hasStage">
-        <domain resource="http://example.org/hospital#Neoplasm"/>
+        <domain resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
     </owlObjectProperty>
     
 
@@ -54,7 +54,7 @@
 
 
     <owlDatatypeProperty about="http://example.org/hospital#hasName" shortName="hasName">
-        <range resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <range resource="http://www.w3.org/2001/XMLSchema#string" shortName="string"/>
     </owlDatatypeProperty>
     
 
@@ -75,7 +75,7 @@
 
 
     <owlClass about="http://example.org/hospital#BenignNeoplasm" shortName="BenignNeoplasm">
-        <subClassOf resource="http://example.org/hospital#Neoplasm"/>
+        <subClassOf resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
     </owlClass>
     
 
@@ -84,7 +84,7 @@
 
 
     <owlClass about="http://example.org/hospital#Cancer" shortName="Cancer">
-        <subClassOf resource="http://example.org/hospital#MalignantNeoplasm"/>
+        <subClassOf resource="http://example.org/hospital#MalignantNeoplasm" shortName="MalignantNeoplasm"/>
     </owlClass>
     
 
@@ -93,7 +93,7 @@
 
 
     <owlClass about="http://example.org/hospital#LungCancer" shortName="LungCancer">
-        <subClassOf resource="http://example.org/hospital#Cancer"/>
+        <subClassOf resource="http://example.org/hospital#Cancer" shortName="Cancer"/>
     </owlClass>
     
 
@@ -102,7 +102,7 @@
 
 
     <owlClass about="http://example.org/hospital#MalignantNeoplasm" shortName="MalignantNeoplasm">
-        <subClassOf resource="http://example.org/hospital#Neoplasm"/>
+        <subClassOf resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
     </owlClass>
     
 
@@ -111,7 +111,7 @@
 
 
     <owlClass about="http://example.org/hospital#NSCLC" shortName="NSCLC">
-        <subClassOf resource="http://example.org/hospital#LungCancer"/>
+        <subClassOf resource="http://example.org/hospital#LungCancer" shortName="LungCancer"/>
     </owlClass>
     
 
@@ -127,7 +127,7 @@
 
 
     <owlClass about="http://example.org/hospital#Patient" shortName="Patient">
-        <subClassOf resource="http://example.org/hospital#Person"/>
+        <subClassOf resource="http://example.org/hospital#Person" shortName="Person"/>
     </owlClass>
     
 
@@ -143,7 +143,7 @@
 
 
     <owlClass about="http://example.org/hospital#SCLC" shortName="SCLC">
-        <subClassOf resource="http://example.org/hospital#LungCancer"/>
+        <subClassOf resource="http://example.org/hospital#LungCancer" shortName="LungCancer"/>
     </owlClass>
 </rdf:RDFDocument>
 

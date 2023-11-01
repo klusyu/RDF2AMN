@@ -2,6 +2,7 @@
 <project name="project" default="default">
 	
 	<target name="default" depends="modelsLoading">
+		
 		<atl.launch path="./transformation/rdf2amn.atl">
 			<inModel name="IN" model="hospital.rdf" />
 			<outModel name="OUT" model="hospital.amn" metamodel="AMN" />

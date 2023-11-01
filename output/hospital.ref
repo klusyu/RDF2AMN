@@ -6,14 +6,24 @@ SEES
 	ContextRDF
 
 SETS
-	IC = {BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC}
+	IC = {BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC},
+	IP_string_Range = {hasName},
+	IP = {hasNeoplasm},
+	IP_hasStage_Range = {hasStage}
 
 VARIABLES
 	ICEXT
 
 INVARIANT
 	ICEXT : IC -> POW(IR) &
-	ICEXT(Thing) = IR
+	ICEXT(Thing) = IR &
+	ICEXT(Neoplasm) <: ICEXT(BenignNeoplasm) &
+	ICEXT(MalignantNeoplasm) <: ICEXT(Cancer) &
+	ICEXT(Cancer) <: ICEXT(LungCancer) &
+	ICEXT(Neoplasm) <: ICEXT(MalignantNeoplasm) &
+	ICEXT(LungCancer) <: ICEXT(NSCLC) &
+	ICEXT(Person) <: ICEXT(Patient) &
+	ICEXT(LungCancer) <: ICEXT(SCLC)
 
 INITIALISATION
 {Thing |-> IR, BenignNeoplasm |-> { }, Cancer |-> { }, LungCancer |-> { }, MalignantNeoplasm |-> { }, NSCLC |-> { }, Neoplasm |-> { }, Patient |-> { }, Person |-> { }, SCLC |-> { }}

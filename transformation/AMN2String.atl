@@ -2,9 +2,9 @@ library AMN2String;
 
 -- =============================================================================
 -- AMN2String
--- Version 2.0
--- Release date : 
--- Author : Sergey Stupnikov (ssa@ipi.ac.ru)
+-- Version 3.0
+-- Release date : 01.2017 
+-- Author : Sergey Stupnikov (sstupnikov@ipiran.ru)
 -- =============================================================================
 
 helper context AMN!Element def: toString(indent: String): String =
@@ -164,7 +164,7 @@ helper context AMN!Refinement def: toString() : String =
 ;
 
 helper def: commaSepNames(set: Set(AMN!Element)) : String =
-	if set.size() > 0
+	if set->size() > 0
 	then 
 		let s: String = set->iterate(i; acc : String = '' | acc + '\t' + i.name + ',\n') in
 			s.substring(1, s.size()-2)
@@ -331,10 +331,19 @@ helper context AMN!BracketedExpression def: toString(indent: String) : String =
 
 helper context AMN!SetComprehension def: toString(indent: String) : String =
 	'{' +
-	( let s: String = self.variable->iterate(i; acc : String = '' | acc + i + ', ') in
-		s.substring(1, s.size()-2) ) +
+	( if self.variable->size() > 0 then 
+			let s: String = self.variable->iterate(i; acc : String = '' | acc + i + ', ') in
+				s.substring(1, s.size()-2)
+	  else 'NO_VARIABLES' 
+	  endif
+	) 
+	+
 	' | ' +
-	self.predicate->asSequence()->at(1).toString(indent + '\t') +
+	if self.predicate->size() > 0 then
+		self.predicate->asSequence()->at(1).toString(indent + '\t') 
+	else 'EMPTY_PREDICATE'
+	endif
+	+
 	'}'
 ;
 
@@ -347,7 +356,7 @@ helper context AMN!UnaryOperator def: toString(indent: String) : String =
 ;
 
 helper context AMN!BinaryOperator def: toString(indent: String) : String =
-	if self.expression.size() > 0
+	if self.expression->size() > 0
 	then 
 		'(' +
 		( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent) + ' ' + self.sign + ' ') in
@@ -359,9 +368,9 @@ helper context AMN!BinaryOperator def: toString(indent: String) : String =
 
 helper context AMN!FunctionalExpression def: toString(indent: String) : String =
 	self.sign + '(' +
-	if self.expression.size() > 0
+	if self.expression->size() > 0
 	then 
-			( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent) + ', ') in
+			( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent + '\t') + ', ') in
 		s.substring(1, s.size()-2) )
 	else '' 
 	endif +						
@@ -387,7 +396,7 @@ helper context AMN!IntegerValue def: toString(indent: String) : String =
 
 helper context AMN!SetValue def: toString(indent: String) : String =
 	'{' +
-	if self.value.size() > 0
+	if self.value->size() > 0
 	then 
 		( let s: String = self.value->iterate(i; acc : String = '' | acc + i.toString(indent) + ', ') in
 			s.substring(1, s.size()-2) )
@@ -407,6 +416,49 @@ helper context AMN!CompoundId def: toString(indent: String) : String =
 			s.substring(1, s.size()-1)
 	else 
 		'EMPTY_ID'
+	endif
+;
+
+helper context AMN!StructType def: toString(indent: String) : String =
+	'struct(\n' + 
+	if self.element->size() > 0 
+	then 
+		let s: String = self.element->iterate(i; acc : String = '' | acc + i.toString(indent + '\t') + ',\n') in
+			s.substring(1, s.size()-2)
+	else 
+		''
+	endif +
+	'\n' + indent + '\t' + ')'
+;
+
+helper context AMN!StructTypeElement def: toString(indent: String) : String =
+	indent + self.name + ': ' + self.type.toString(indent)
+;
+
+helper context AMN!RecordValue def: toString(indent: String) : String =
+	'rec(' +
+	if self.element->size() > 0 
+	then 
+		let s: String = self.element->iterate(i; acc : String = '' | acc + i.toString(indent + '\t') + ', ') in
+			s.substring(1, s.size()-2)
+	else 
+		''
+	endif +
+	')'
+;
+
+helper context AMN!RecordValueElement def: toString(indent: String) : String =
+	self.name + ': ' + self.value.toString(indent)
+;
+
+helper context AMN!RecordLookup def: toString(indent: String) : String =
+	self.name + '\'' + 
+	if self.field->size() > 0 
+	then 
+		let s: String = self.field->iterate(i; acc : String = '' | acc + i + '\'') in
+			s.substring(1, s.size()-1)
+	else 
+		''
 	endif
 ;
 
@@ -514,6 +566,30 @@ helper context AMN!Simultaneous def: toString(indent: String) : String =
 	endif
 ;
 
+helper context AMN!Select def: toString(indent: String) : String =
+	indent + 'SELECT\n' + 
+	if self.select->size() > 0 
+	then
+		( let s: String = self.select->iterate(i; acc : String = indent + '\t' | acc + i.toString(indent + '\t') + ' &\n' + indent + '\t') in
+			s.substring(1, s.size() - 4 - indent.size()) )
+	else indent + '\t' + 'TRUE = TRUE'
+	endif +	
+	'\n' + indent + 'THEN\n' + 
+	if not self.thenPart.oclIsUndefined()
+	then 
+		self.thenPart.toString(indent + '\t')
+	else ''
+	endif +		
+	'\n' + indent + 'END'
+;
 
+helper context AMN!SequenceSubstitution def: toString(indent: String) : String =
+	if self.substitution->size() > 0 
+	then 
+		let s: String = self.substitution->iterate(i; acc : String = '' | acc + i.toString(indent) + ';\n') in
+			s.substring(1, s.size() - 2)
+	else ''
+	endif
+;
 
 
