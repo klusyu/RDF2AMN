@@ -11,6 +11,14 @@ SETS
 	IP = {hasNeoplasm},
 	IP_hasStage_Range = {hasStage}
 
+ABSTRACT_CONSTANTS
+	IS_IP,
+	IL_hasStage
+
+PROPERTIES
+	IS_IP : IRI +-> IS_IP &
+	IS_IP : FIN(IS_IP)
+
 VARIABLES
 	ICEXT
 

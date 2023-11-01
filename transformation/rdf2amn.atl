@@ -24,6 +24,10 @@ rule RDF2Refinement{
 			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
 			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o)),
 			abstractVariables <- Set{avs},
+			abstractConstants <- 'IS_IP',
+			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o).name)->select(o|o.size() > 0),
+			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o).name)->select(o|o.size() > 0),
+			properties <- conjProperties,
 			invariant <- Sequence{inVariant},
 			initialization <- icextInit
 			
@@ -40,6 +44,42 @@ rule RDF2Refinement{
 		classSet: AMN!SetDecl(
 			name <- 'IC',
 			element <- rd.owlClass->collect(c|c.shortName)
+		),
+		--- PROPERTIES
+		conjProperties: AMN!Conjunction(
+			predicate <- isipIRI,
+			predicate <- isipFIN
+		),
+		isipIRI: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{isipIRIVar, iriPred}
+		),
+		isipIRIVar: AMN!NamedConstant(
+			name <- 'IS_IP'	
+		),
+		isipFIN: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{isipFINVar, finPred}	
+		),
+		isipFINVar: AMN!NamedConstant(
+			name <- 'IS_IP'	
+		),
+		iriPred: AMN!AtomicPredicate(
+			sign <- '+->',
+			expression <- Sequence{iriLeftVar, iriRightVar}
+		),
+		iriLeftVar: AMN!NamedConstant(
+			name <- 'IRI'	
+		),
+		iriRightVar: AMN!NamedConstant(
+			name <- 'IS_IP'	
+		),
+		finPred: AMN!FunctionalExpression(
+			sign <- 'FIN',
+			expression <- finVar
+		),
+		finVar: AMN!NamedConstant(
+			name <- 'IS_IP'	
 		),
 		--- INVARIANT
 		inVariant: AMN!Conjunction(
@@ -92,7 +132,6 @@ rule RDF2Refinement{
 		)
 		
 	do {
-		
 		thisModule.debug('RDF2Refinement');	
 	}
 }
@@ -149,47 +188,13 @@ lazy rule initPropertySet{
 		--- SETS
 		initSet: AMN!SetDecl(
 			element <- Sequence{o.shortName}	
-		),
-		--- ABSTRACT_CONSTANS
-		initAbstractConstants: AMN!StringValue(),
-		namedConstant: AMN!Variable(
-			name <- 'IL' + o.shortName	
-		),
-		--- PROPERTIES
-		initProperties: AMN!CompoundPredicate(),
-		iriPred: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{namedConstant, iriExp}
-		),
-		iriExp: AMN!AtomicPredicate(
-			sign <- '+->',
-			expression <- Sequence{iriExpLeftVar, iriExpRightVar}
-		),
-		iriExpLeftVar: AMN!Variable(
-			name <- 'IRI'	
-		),
-		iriExpRightVar: AMN!Variable(
-			name <- o.shortName
-		),
-		finPred: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{namedConstant, finExp}
-		),
-		finExp: AMN!FunctionalExpression(
-			sign <- 'FIN',
-			expression <- Sequence{namedConstant}
 		)
-		--- ABSTRACT_VARIABLES
-		--- INVARIANT
-		--- INITIALISATION
 	do {
 		thisModule.debug('initProperty');
 		--- set SETS
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
 			initSet.name <- 'IP_' + o.shortName + '_Range';
-			initAbstractConstants.value <- 'IL_' + o.shortName;
-			initProperties.predicate <- Sequence{iriPred, finPred};
 		}
 		else{
 			thisModule.debug('range:' + range.shortName);
@@ -203,7 +208,6 @@ lazy rule initPropertySet{
 			}
 			thisModule.debug('initSet.name:' + initSet.name);
 		}
-		
 	}
 }
 
@@ -215,64 +219,14 @@ lazy rule initPropertyAbstractConstans{
 		setName: String = 'IP';
 	}
 	to
-		--- SETS
-		initSet: AMN!SetDecl(
-			element <- Sequence{o.shortName}	
-		),
-		--- ABSTRACT_CONSTANS
-		initAbstractConstants: AMN!StringValue(),
 		namedConstant: AMN!Variable(
-			name <- 'IL' + o.shortName	
-		),
-		--- PROPERTIES
-		initProperties: AMN!CompoundPredicate(),
-		iriPred: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{namedConstant, iriExp}
-		),
-		iriExp: AMN!AtomicPredicate(
-			sign <- '+->',
-			expression <- Sequence{iriExpLeftVar, iriExpRightVar}
-		),
-		iriExpLeftVar: AMN!Variable(
-			name <- 'IRI'	
-		),
-		iriExpRightVar: AMN!Variable(
-			name <- o.shortName
-		),
-		finPred: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{namedConstant, finExp}
-		),
-		finExp: AMN!FunctionalExpression(
-			sign <- 'FIN',
-			expression <- Sequence{namedConstant}
+			name <- ''
 		)
-		--- ABSTRACT_VARIABLES
-		--- INVARIANT
-		--- INITIALISATION
-	do {
-		thisModule.debug('initProperty');
-		--- set SETS
+	do{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
-			initSet.name <- 'IP_' + o.shortName + '_Range';
-			initAbstractConstants.value <- 'IL_' + o.shortName;
-			initProperties.predicate <- Sequence{iriPred, finPred};
+			namedConstant.name <- 'IL_' + o.shortName;
 		}
-		else{
-			thisModule.debug('range:' + range.shortName);
-			if (thisModule.isBuiltinDatatype(range.shortName)) {
-				-- built-in datatype
-				initSet.name <- 'IP_' + range.shortName + '_Range';
-			}
-			else {
-				-- non built-in datatype
-				initSet.name <- 'IP';
-			}
-			thisModule.debug('initSet.name:' + initSet.name);
-		}
-		
 	}
 }
 
@@ -287,16 +241,17 @@ helper def: isBuiltinDatatype(t: String): Boolean =
 
 	
 rule createPred2Variables(s: String, leftVar: String, rightVar: String) {
-	to ap: AMN!AtomicPredicate(
-		sign <- s,
-		expression <- Sequence{leftExp, rightExp}
-	),
-	leftExp: AMN!Variable(
-		name <- leftVar
-	),
-	rightExp: AMN!Variable(
-		name <- rightVar
-	)
+	to 
+		ap: AMN!AtomicPredicate(
+			sign <- s,
+			expression <- Sequence{leftExp, rightExp}
+		),
+		leftExp: AMN!Variable(
+			name <- leftVar
+		),
+		rightExp: AMN!Variable(
+			name <- rightVar
+		)
 	do {
 		thisModule.debug('createPred2Variables');
 	}
