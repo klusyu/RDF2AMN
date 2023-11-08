@@ -29,6 +29,8 @@ rule RDF2Refinement{
 			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o).name)->select(o|o.size() > 0),
 			properties <- conjProperties,
 			invariant <- Sequence{inVariant},
+			invariant <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
+			invariant <- rd.owlObjectProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
 			initialization <- icextInit
 			
 		),
@@ -113,10 +115,17 @@ rule RDF2Refinement{
 		),
 		icThingVar: AMN!Variable(name <- 'Thing'),
 		ricThing: AMN!Variable(name <- 'IR'),
-		
+		-- Properties INVARIANT
 		
 		--- Initialization
-		icextInit: AMN!SetValue(
+		icextInit: AMN!AtomicPredicate(
+			sign <- ':=',
+			expression <- Sequence{initVar, icextSet}
+		),
+		initVar: AMN!Variable(
+			name <- avs	
+		),
+		icextSet: AMN!SetValue(
 			value <- Set{initThing},
 			value <- rd.owlClass->collect(c | thisModule.initClass(c))	
 		),
@@ -226,6 +235,65 @@ lazy rule initPropertyAbstractConstans{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
 			namedConstant.name <- 'IL_' + o.shortName;
+		}
+	}
+}
+
+lazy rule initPropertyInvariant{
+	from o: SW!Property
+	using {
+		range: SW!Class = o.range;
+		domain: SW!Class = o.domain;
+		iextName: String = '';
+		ipName: String = '';
+	}
+	to
+		ap: AMN!AtomicPredicate(
+			expression <- Sequence{leftExp, rightExp}
+		),
+		leftExp: AMN!Variable(),
+		rightExp: AMN!AtomicPredicate(
+			sign <- '->',
+			expression <- Sequence{ipLeft, ipRight}
+		),
+		ipLeft: AMN!Variable(),
+		ipRight: AMN!FunctionalExpression(
+			sign <- 'POW',
+			expression <- ipExp
+		),
+		ipExp: AMN!AtomicPredicate(
+			sign <- '*',
+			expression <- Sequence{ipConst, strConst}
+		),
+		ipConst: AMN!NamedConstant(
+			name <- 'IP'
+		),
+		strConst: AMN!NamedConstant(
+		)
+	do {
+		if (range.oclIsUndefined()) {
+			-- enumeration datatype
+			leftExp.name <- 'IEXT_' + o.shortName + '_Range';
+			ipLeft.name <- 'IP_' + o.shortName + '_Range';
+			strConst.name <- o.shortName;
+			ap.sign <- ':';
+		}
+		else{
+			thisModule.debug('range:' + range.shortName);
+			if (thisModule.isBuiltinDatatype(range.shortName)) {
+				-- built-in datatype
+				leftExp.name <- 'IEXT_' + range.shortName + '_Range';
+				ipLeft.name <- 'IP_' + range.shortName + '_Range';
+				strConst.name <- 'STRING_TYPE';
+				ap.sign <- ':';
+			}
+			else {
+				-- non built-in datatype
+				leftExp.name <- '_nonBuiltinIEXT';
+				ipLeft.name <- '_nonBuiltinIP';
+				ap.sign <- '';
+				thisModule.debug('----------ERROR------');
+			}
 		}
 	}
 }
