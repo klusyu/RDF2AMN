@@ -31,6 +31,8 @@ rule RDF2Refinement{
 			invariant <- Sequence{inVariant},
 			invariant <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
 			invariant <- rd.owlObjectProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
+			invariant <- rd.owlObjectProperty->collect(o | thisModule.initObjectPropertyDomainInvariant(o)),
+			invariant <- rd.owlObjectProperty->select(o|not o.range.oclIsUndefined())->collect(o | thisModule.initObjectPropertyRangeInvariant(o)),
 			initialization <- icextInit
 			
 		),
@@ -293,6 +295,234 @@ lazy rule initPropertyInvariant{
 				ipLeft.name <- '_nonBuiltinIP';
 				ap.sign <- '';
 				thisModule.debug('----------ERROR------');
+			}
+		}
+	}
+}
+
+-- !(xx, yy).(xx: IR & yy: IR & (xx|->yy):IEXT(hasNeoplasm) =>
+--        xx: ICEXT(Patient) ) &
+lazy rule initObjectPropertyDomainInvariant{
+	from o: SW!Property
+	using {
+		range: SW!Class = o.range;
+		domain: SW!Class = o.domain;
+		iextName: String = '';
+		ipName: String = '';
+	}
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- '.',
+			expression <- Sequence{nXY,rightExpBrac}
+		),
+		nXY: AMN!UnaryOperator(
+			sign <- '!',
+			expression <- axy
+		),
+		axy: AMN!BinaryOperator(
+			sign <- ',',
+			expression <- Sequence{xv, yv}
+		),
+		xv: AMN!Variable(
+			name <- 'xx'	
+		),
+		yv: AMN!Variable(
+			name <- 'yy'	
+		),
+		rightT: AMN!Variable(
+			name <- 'right'
+		),
+		rightExpBrac: AMN!Bracketed(
+			predicate <- rightExp
+		),
+		rightExp: AMN!Conjunction(
+			predicate <- Sequence{rxr, ryr, r3456}	
+		),
+		rxr: AMN!BinaryOperator(
+			sign <- ':',
+			expression <- Sequence{rxx, rxir}
+		),
+		rxx: AMN!Variable(
+			name <- 'xx'
+		),
+		rxir: AMN!Variable(
+			name <- 'IR'
+		),
+		ryr: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{ryy, ryir}
+		),
+		ryy: AMN!Variable(
+			name <- 'yy'
+		),
+		ryir: AMN!Variable(
+			--name <- 'IR'	
+		),
+		r3456: AMN!AtomicPredicate(
+			sign <- '=>',
+			expression <- Sequence{r34, r56}
+		),
+		r34: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r3xxyy, r4iext}
+		),
+		r3xxyy: AMN!BinaryOperator(
+			sign <- '|->',
+			expression <- Sequence{r3xx, r3yy}
+		),
+		r3xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r3yy: AMN!Variable(
+			name <- 'yy'	
+		),
+		r4iext: AMN!FunctionalExpression(
+			--sign <- 'IEXT',
+			expression <- r4dn
+		),
+		r4dn: AMN!Variable(
+			name <- o.shortName	
+		),
+		r56: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r5xx, r6icext}
+		),
+		r5xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r6icext: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- r6dn
+		),
+		r6dn: AMN!Variable(
+			name <- domain.shortName	
+		)
+		
+	do {
+		if (range.oclIsUndefined()) {
+			-- enumeration datatype
+			-- domain
+			ryir.name <- o.shortName;
+			r4iext.sign <- 'IEXT_' + o.shortName + '_Range';
+		}
+		else{
+			if (not thisModule.isBuiltinDatatype(range.shortName)) {
+				-- non built-in datatype
+				-- domain & range
+				ryir.name <- 'IR';
+				r4iext.sign <- 'IEXT';
+			}
+		}
+	}
+}
+
+lazy rule initObjectPropertyRangeInvariant{
+	from o: SW!Property
+	using {
+		range: SW!Class = o.range;
+		domain: SW!Class = o.domain;
+		iextName: String = '';
+		ipName: String = '';
+	}
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- '.',
+			expression <- Sequence{nXY,rightExpBrac}
+		),
+		nXY: AMN!UnaryOperator(
+			sign <- '!',
+			expression <- axy
+		),
+		axy: AMN!BinaryOperator(
+			sign <- ',',
+			expression <- Sequence{xv, yv}
+		),
+		xv: AMN!Variable(
+			name <- 'xx'	
+		),
+		yv: AMN!Variable(
+			name <- 'yy'	
+		),
+		rightT: AMN!Variable(
+			name <- 'right'
+		),
+		rightExpBrac: AMN!Bracketed(
+			predicate <- rightExp
+		),
+		rightExp: AMN!Conjunction(
+			predicate <- Sequence{rxr, ryr, r3456}	
+		),
+		rxr: AMN!BinaryOperator(
+			sign <- ':',
+			expression <- Sequence{rxx, rxir}
+		),
+		rxx: AMN!Variable(
+			name <- 'xx'
+		),
+		rxir: AMN!Variable(
+			name <- 'IR'
+		),
+		ryr: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{ryy, ryir}
+		),
+		ryy: AMN!Variable(
+			name <- 'yy'
+		),
+		ryir: AMN!Variable(
+			name <- 'IR'	
+		),
+		r3456: AMN!AtomicPredicate(
+			sign <- '=>',
+			expression <- Sequence{r34, r56}
+		),
+		r34: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r3xxyy, r4iext}
+		),
+		r3xxyy: AMN!BinaryOperator(
+			sign <- '|->',
+			expression <- Sequence{r3xx, r3yy}
+		),
+		r3xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r3yy: AMN!Variable(
+			name <- 'yy'	
+		),
+		r4iext: AMN!FunctionalExpression(
+			sign <- 'IEXT',
+			expression <- r4dn
+		),
+		r4dn: AMN!Variable(
+			name <- o.shortName	
+		),
+		r56: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r5xx, r6icext}
+		),
+		r5xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r6icext: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- r6dn
+		),
+		r6dn: AMN!Variable(
+			name <- range.shortName	
+		)
+		
+	do {
+		if (range.oclIsUndefined()) {
+			-- enumeration datatype
+			-- domain
+	
+		}
+		else{
+			if (not thisModule.isBuiltinDatatype(range.shortName)) {
+				-- non built-in datatype
+				-- domain & range
+		
 			}
 		}
 	}

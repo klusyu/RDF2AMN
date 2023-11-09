@@ -33,7 +33,16 @@ INVARIANT
 	ICEXT(Person) <: ICEXT(Patient) &
 	ICEXT(LungCancer) <: ICEXT(SCLC) &
 	IEXT_string_Range : IP_string_Range -> POW(IP * STRING_TYPE) &
-	IEXT_hasStage_Range : IP_hasStage_Range -> POW(IP * hasStage)
+	IEXT_hasStage_Range : IP_hasStage_Range -> POW(IP * hasStage) &
+	!(xx , yy) . ((xx : IR) &
+		yy : IR &
+		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Patient)) &
+	!(xx , yy) . ((xx : IR) &
+		yy : hasStage &
+		(xx |-> yy) : IEXT_hasStage_Range(hasStage) => xx : ICEXT(Neoplasm)) &
+	!(xx , yy) . ((xx : IR) &
+		yy : IR &
+		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Neoplasm))
 
 INITIALISATION
 ICEXT := {Thing |-> IR, BenignNeoplasm |-> { }, Cancer |-> { }, LungCancer |-> { }, MalignantNeoplasm |-> { }, NSCLC |-> { }, Neoplasm |-> { }, Patient |-> { }, Person |-> { }, SCLC |-> { }}

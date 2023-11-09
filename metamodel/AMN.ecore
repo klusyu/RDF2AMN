@@ -104,7 +104,7 @@
   <eSubpackages name="AMNExpression" nsURI="http://synthesis.ipi.ac.ru/amn/expression"
       nsPrefix="amn-exp">
     <eClassifiers xsi:type="ecore:EClass" name="Expression"/>
-    <eClassifiers xsi:type="ecore:EClass" name="BracketedExpression">
+    <eClassifiers xsi:type="ecore:EClass" name="BracketedExpression" eSuperTypes="#//AMNExpression/Expression">
       <eStructuralFeatures xsi:type="ecore:EReference" name="expression" lowerBound="1"
           eType="#//AMNExpression/Expression" containment="true"/>
     </eClassifiers>
