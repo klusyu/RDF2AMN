@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SW" nsURI="https://www.w3.org/TR/rdf-schema/rdf" nsPrefix="rdf">
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="SW" nsURI="https://www.w3.org/2001/sw/" nsPrefix="sw">
   <eClassifiers xsi:type="ecore:EClass" name="RDFDocument">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owlDatatypeProperty" upperBound="-1"
-        eType="#//OWL/DatatypeProperty"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owlObjectProperty" upperBound="-1"
-        eType="#//OWL/ObjectProperty"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owlOntology" upperBound="-1"
-        eType="#//OWL/Ontology"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="owlClass" upperBound="-1"
-        eType="#//RDFS/Class"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sparql" ordered="false"
+        upperBound="-1" eType="#//SPARQL/SparqlQuery" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owlDatatypeProperty" ordered="false"
+        upperBound="-1" eType="#//OWL/DatatypeProperty" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owlObjectProperty" ordered="false"
+        upperBound="-1" eType="#//OWL/ObjectProperty" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owlOntology" ordered="false"
+        upperBound="-1" eType="#//OWL/Ontology" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owlClass" ordered="false"
+        upperBound="-1" eType="#//RDFS/Class" containment="true"/>
   </eClassifiers>
-  <eSubpackages name="RDF" nsURI="https://www.w3.org/1999/02/rdf-syntax-ns#" nsPrefix="RDF">
+  <eSubpackages name="RDF" nsURI="http://www.w3.org/1999/02/22-rdf-syntax-ns#" nsPrefix="RDF">
     <eClassifiers xsi:type="ecore:EClass" name="Property" eSuperTypes="#//RDFS/Resource">
       <eStructuralFeatures xsi:type="ecore:EReference" name="domain" eType="#//RDFS/Class"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="range" eType="#//RDFS/Class"/>
@@ -54,5 +56,38 @@
     <eClassifiers xsi:type="ecore:EClass" name="OntologyProperty" eSuperTypes="#//RDF/Property"/>
     <eClassifiers xsi:type="ecore:EClass" name="DatatypeProperty" eSuperTypes="#//RDF/Property"/>
     <eClassifiers xsi:type="ecore:EClass" name="ObjectProperty" eSuperTypes="#//RDF/Property"/>
+  </eSubpackages>
+  <eSubpackages name="SPARQL" nsURI="https://www.w3.org/TR/sparql11-query/" nsPrefix="sparql">
+    <eClassifiers xsi:type="ecore:EClass" name="Select">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="variables" upperBound="-1"
+          eType="#//SPARQL/Variable"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="where" lowerBound="1"
+          eType="#//SPARQL/Where"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Variable">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Where">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="patterns" lowerBound="1"
+          upperBound="-1" eType="#//SPARQL/TriplePattern" containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="TriplePattern">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="subject" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="predicate" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="object" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Prefix">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="uri" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="SparqlQuery">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="prefix" ordered="false"
+          upperBound="-1" eType="#//SPARQL/Prefix" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="select" ordered="false"
+          lowerBound="1" eType="#//SPARQL/Select"/>
+    </eClassifiers>
   </eSubpackages>
 </ecore:EPackage>

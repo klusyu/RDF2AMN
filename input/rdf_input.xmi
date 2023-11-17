@@ -1,8 +1,27 @@
-<?xml version="1.0" encoding="ASCII"?>
-<rdf:RDFDocument xmi:version="2.0" 
-	xmlns:xmi="http://www.omg.org/XMI" 
-	xmlns:rdf="https://www.w3.org/TR/rdf-schema/rdf">
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" 
+	xmlns:xmi="http://www.omg.org/XMI"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:sw="https://www.w3.org/2001/sw/">
 	
+
+	
+<sw:RDFDocument>
+	<sparql>
+		<prefix name="inst" uri="http://example.org/hospital/instances/"/>
+		<prefix name="" uri="http://example.org/hospital#"/>
+		
+		<select>
+			<variables name="name"/>
+			<where>
+				<patterns subject="p" predicate="a" object="Patient"/>
+				<patterns subject="p" predicate="hasName" object="name"/>
+				<patterns subject="p" predicate="hasNeoplasm" object="tumor"/>
+				<patterns subject="tumor" predicate="a" object="Neoplasm"/>
+				<patterns subject="tumor" predicate="hasStage" object="stage-IIIa"/>
+			</where>
+		</select>
+	</sparql>
     <owlOntology about="http://example.org/hospital" shortName="hospital"/>
     
 
@@ -145,7 +164,8 @@
     <owlClass about="http://example.org/hospital#SCLC" shortName="SCLC">
         <subClassOf resource="http://example.org/hospital#LungCancer" shortName="LungCancer"/>
     </owlClass>
-</rdf:RDFDocument>
+</sw:RDFDocument>
+</xmi:XMI>
 
 
 

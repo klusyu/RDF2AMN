@@ -118,6 +118,13 @@ helper context AMN!Refinement def: toString() : String =
 	else '' 
 	endif +
 	
+	if self.definitions->size() > 0 
+	then 
+		'\n\nDEFINITIONS\n' + 
+		( let s: String = self.definitions->iterate(i; acc : String = '\t' | acc + i.name + ' == ' + i.type + '\n\t') in s.substring(1, s.size()-3) )
+	else '' 
+	endif +
+	
 	if self.abstractConstants->size() > 0 
 	then 
 		'\n\nABSTRACT_CONSTANTS\n' + 
@@ -134,7 +141,7 @@ helper context AMN!Refinement def: toString() : String =
   	
 	if self.abstractVariables->size() > 0 
 	then 
-		'\n\nVARIABLES\n' + 
+		'\n\nABSTRACT_VARIABLES\n' + 
 		( let s: String = self.abstractVariables->iterate(i; acc : String = '\t' | acc + i + ',\n\t') in s.substring(1, s.size()-3) )
 	else '' 
 	endif +
@@ -357,11 +364,16 @@ helper context AMN!UnaryOperator def: toString(indent: String) : String =
 
 helper context AMN!BinaryOperator def: toString(indent: String) : String =
 	if self.expression->size() > 0
-	then 
-		'(' +
-		( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent) + ' ' + self.sign + ' ') in
-			s.substring(1, s.size()- 2 - self.sign.size()) ) +
-		')'
+	then
+		if not self.noBracket.oclIsUndefined() then
+			( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent) + ' ' + self.sign + ' ') in
+				s.substring(1, s.size()- 2 - self.sign.size()) )
+		else
+			'(' +
+			( let s: String = self.expression->iterate(i; acc : String = '' | acc + i.toString(indent) + ' ' + self.sign + ' ') in
+				s.substring(1, s.size()- 2 - self.sign.size()) ) +
+			')'
+		endif
 	else ''
 	endif
 ;

@@ -4,6 +4,23 @@ create OUT: AMN from IN: SW;
 -- @path SW=/metamodel/SW.ecore
 -- @path AMN=/metalmodel/AMN.ecore
 
+--- Global Variables
+helper def: gEnumDT: Set(String) =
+	Set{}
+;
+
+helper def: gBuiltinDT: Set(String) = 
+	Set{}
+;
+
+helper def: gAbstractConstants: Set(String) =
+	Set{}
+;
+
+helper def: gAbstractVariables: Set(String) =
+	Set{}
+;
+
 
 rule RDF2Refinement{
 	from 
@@ -11,6 +28,7 @@ rule RDF2Refinement{
 	using {
 		sos : Set(AMN!Operation) = Set{};
 		avs: String = 'ICEXT';
+		iext: String = 'IEXT';
 		objectProperties: Set(SW!ObjectProperty) = rd.owlObjectProperty;
 		datatypeProperties: Set(SW!DatatypeProperty) = rd.owlDatatypeProperty;
 	}
@@ -23,17 +41,21 @@ rule RDF2Refinement{
 			sets <- classSet,
 			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
 			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o)),
-			abstractVariables <- Set{avs},
+			definitions <- defin,
+			abstractVariables <- thisModule.initAbstractVariables(rd).abstractVariables,
 			abstractConstants <- 'IS_IP',
-			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o).name)->select(o|o.size() > 0),
-			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o).name)->select(o|o.size() > 0),
+			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
+			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
 			properties <- conjProperties,
+			invariant <- thisModule.initAbstractVariables(rd).invariant,
 			invariant <- Sequence{inVariant},
+			invariant <- rd.owlObjectProperty->collect(o|thisModule.initObjectPropertyInvariant(o)),
 			invariant <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
 			invariant <- rd.owlObjectProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
 			invariant <- rd.owlObjectProperty->collect(o | thisModule.initObjectPropertyDomainInvariant(o)),
 			invariant <- rd.owlObjectProperty->select(o|not o.range.oclIsUndefined())->collect(o | thisModule.initObjectPropertyRangeInvariant(o)),
-			initialization <- icextInit
+			initialization <- thisModule.initAbstractVariables(rd).initialization,
+			operations <- rd.sparql->collect(s | thisModule.Sparql2Operation(s))
 			
 		),
 		--- SEES
@@ -47,43 +69,20 @@ rule RDF2Refinement{
 		--- SETS
 		classSet: AMN!SetDecl(
 			name <- 'IC',
+			element <- 'Thing',
 			element <- rd.owlClass->collect(c|c.shortName)
+		),
+		--- DEFINITIONS
+		defin: AMN!Definition(
+			name <- 'STRING_TYPE',
+			type <- 'seq(0..255)'
 		),
 		--- PROPERTIES
 		conjProperties: AMN!Conjunction(
-			predicate <- isipIRI,
-			predicate <- isipFIN
-		),
-		isipIRI: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{isipIRIVar, iriPred}
-		),
-		isipIRIVar: AMN!NamedConstant(
-			name <- 'IS_IP'	
-		),
-		isipFIN: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{isipFINVar, finPred}	
-		),
-		isipFINVar: AMN!NamedConstant(
-			name <- 'IS_IP'	
-		),
-		iriPred: AMN!AtomicPredicate(
-			sign <- '+->',
-			expression <- Sequence{iriLeftVar, iriRightVar}
-		),
-		iriLeftVar: AMN!NamedConstant(
-			name <- 'IRI'	
-		),
-		iriRightVar: AMN!NamedConstant(
-			name <- 'IS_IP'	
-		),
-		finPred: AMN!FunctionalExpression(
-			sign <- 'FIN',
-			expression <- finVar
-		),
-		finVar: AMN!NamedConstant(
-			name <- 'IS_IP'	
+			predicate <- ref.abstractConstants->collect(ac | thisModule.initPropertiesIRI(ac)),
+			predicate <- ref.abstractConstants->collect(ac | thisModule.initPropertiesFIN(ac)),
+			predicate <- thisModule.initPropertiesDOM(ref.abstractConstants),
+			predicate <- thisModule.initPropertiesCardDOM(ref.abstractConstants)
 		),
 		--- INVARIANT
 		inVariant: AMN!Conjunction(
@@ -98,7 +97,7 @@ rule RDF2Refinement{
 		),
 		leftVar: AMN!Variable(name <- avs),
 		icExp: AMN!AtomicPredicate(
-			sign <- '->',
+			sign <- '-->',
 			expression <- Sequence{icVar, powIR}
 		),
 		icVar: AMN!Variable(name <- 'IC'),
@@ -116,16 +115,43 @@ rule RDF2Refinement{
 			expression <- icThingVar	
 		),
 		icThingVar: AMN!Variable(name <- 'Thing'),
-		ricThing: AMN!Variable(name <- 'IR'),
+		ricThing: AMN!Variable(name <- 'IR')
 		-- Properties INVARIANT
 		
 		--- Initialization
+	do {
+		thisModule.debug('RDF2Refinement: do!');
+		thisModule.debug(thisModule.resolveTemp(rd.sparql->first(), 'vmn'));
+		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');	
+	}
+}
+
+unique lazy rule initAbstractVariables{
+	from rd: SW!RDFDocument
+	using {
+		properties: Set(SW!Property) = rd.owlDatatypeProperty.union(rd.owlObjectProperty);
+		pWithRange: Set(SW!Property) = properties->select(p|not p.range.oclIsUndefined());
+		pWithoutRange: Set(SW!Property) = properties->select(p|p.range.oclIsUndefined());
+		pBuiltin: Set(SW!Property) = pWithRange->select(p|thisModule.isBuiltinDatatype(p.range.shortName));
+		acs: Set(String) = pWithoutRange->collect(p|p.shortName)->union(pBuiltin->collect(p|p.range.shortName));
+		iext: String = 'IEXT';
+		icext: String = 'ICEXT';
+	}
+	to
+		am: AMN!AbstractMachine(
+			abstractVariables <- iext,
+			abstractVariables <- acs->collect(ac|iext+'_' + ac + '_Range'),
+			abstractVariables <- icext,
+			initialization <- properties->collect(p|thisModule.initACSet(p)),
+			initialization <- icextInit,
+			invariant <- properties->collect(p|thisModule.initACInvariant(p))
+		),
 		icextInit: AMN!AtomicPredicate(
 			sign <- ':=',
 			expression <- Sequence{initVar, icextSet}
 		),
 		initVar: AMN!Variable(
-			name <- avs	
+			name <- icext
 		),
 		icextSet: AMN!SetValue(
 			value <- Set{initThing},
@@ -141,9 +167,299 @@ rule RDF2Refinement{
 		rThing:	AMN!StringValue(
 			value <- 'IR'
 		)
+}
+
+rule initACSet(p: SW!Property){
+	using{
+
+		ac:String = if p.range.oclIsUndefined() then p.shortName else p.range.shortName endif;	
+	}
+	to
+		icextInit: AMN!AtomicPredicate(
+			sign <- ':=',
+			expression <- Sequence{initVar, icextSet}
+		),
+		initVar: AMN!Variable(
+		),
+		icextSet: AMN!SetValue(
+			value <- Set{initThing}
+		),
+		initThing: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{lThing, rThing}
+		),
+		lThing: AMN!StringValue(
+			value <- p.shortName	
+		),
+		rThing:	AMN!StringValue(
+			value <- '{}'
+		)
+	do{
+		if (p.range.oclIsUndefined()) {
+			-- enumeration datatype
+			ac <- 'IEXT_' + ac + '_Range';
+		}
+		else{
+			if (thisModule.isBuiltinDatatype(p.range.shortName)) {
+				-- built-in datatype
+				ac <- 'IEXT_' + ac + '_Range';
+			}
+			else {
+				-- non built-in datatype
+				ac <- 'IEXT';
+			}
+		}
+		initVar.name <- ac;
+		icextInit;	
+	}
+}
+
+rule initACInvariant(p: SW!Property){
+	using{
+
+		ac:String = if p.range.oclIsUndefined() then p.shortName else p.range.shortName endif;	
+	}
+	to
+		leftInv: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{initVar, rightInv}
+		),
+		initVar: AMN!Variable(
+		),
+		rightInv: AMN!AtomicPredicate(
+			sign <- '-->',
+			expression <- Sequence{rightIP, rightPOW}
+		),
+		rightIP: AMN!Variable(
+			--name <- 'IP'	
+		),
+		rightPOW: AMN!FunctionalExpression(
+			sign <- 'POW',
+			expression <- rightMul
+		),
+		rightMul: AMN!AtomicPredicate(
+			sign <- '*',
+			expression <- Sequence{mulConst, mulVar}
+		),
+		mulConst: AMN!NamedConstant(
+			name <- 'IR'	
+		),
+		mulVar: AMN!Variable(
+		)
 		
-	do {
-		thisModule.debug('RDF2Refinement');	
+	do{
+		if (p.range.oclIsUndefined()) {
+			-- enumeration datatype
+			initVar.name <- 'IEXT_' + ac + '_Range';
+			rightIP.name <- 'IP_' + ac + '_Range';
+			mulVar.name <- ac;
+		}
+		else{
+			if (thisModule.isBuiltinDatatype(p.range.shortName)) {
+				-- built-in datatype
+				initVar.name <- 'IEXT_' + ac + '_Range';
+				rightIP.name <- 'IP_' + ac + '_Range';
+				mulVar.name <- 'STRING_TYPE';
+			}
+			else {
+				-- non built-in datatype
+				initVar.name <- 'IEXT';
+				rightIP.name <- 'IP';
+				mulVar.name <- 'IP';
+			}
+		}
+		leftInv;	
+	}
+}
+
+lazy rule initObjectPropertyInvariant{
+	from p: SW!ObjectProperty
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- '<=',
+			expression <- Sequence{leftExp, rightExp}
+		),
+		leftExp: AMN!FunctionalExpression(
+			sign <- 'card',
+			expression <- leftIcext
+		),
+		leftIcext: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- leftVar
+		),
+		leftVar: AMN!Variable(
+			name <- p.domain.shortName	
+		),
+		rightExp: AMN!Variable(
+			name <- 'NN'	
+		)
+}
+
+lazy rule Sparql2Operation{
+	from s: SW!SparqlQuery
+	using {
+		res : String = 'res';
+	}
+	to oper: AMN!Operation(
+		name <- 'patientsWithTumorOfStageIIIa', --- How to get such name?
+		outputParams <- res,
+		substitution <-block
+	),
+	block: AMN!Block(
+		substitution <- equal
+	),
+	equal : AMN!BecomesEqual(
+		leftExpression <- leftExp,
+		rightExpression <- rightExp
+	),
+	leftExp: AMN!Variable(
+		name <- res
+	),
+	rightExp: AMN!SetComprehension(
+		variable <- 'rcrd',
+		predicate <- ap
+	),
+	ap: AMN!Conjunction(
+		predicate <- Sequence{stap, estPred}
+	),
+	stap: AMN!AtomicPredicate(
+		sign <- ':',
+		expression <- Sequence{stapvar, st}
+	),
+	stapvar: AMN!Variable(
+		name <- 'rcrd'
+	),
+	st: AMN!StructType(
+		element <- s.select.variables->collect(v | thisModule.selvar2struct(v))
+	),
+	estPred: AMN!ExistentialPredicate(
+		variable <- s.select.where.patterns->select(p|p.predicate='a')->collect(s|s.subject),
+		predicate <- estConj
+	),
+	estConj: AMN!Conjunction(
+		predicate <- s.select.where.patterns->collect(p | thisModule.selectWhere2Predicate(s, p))
+	)
+	do{
+	
+	}
+}
+
+lazy rule selvar2struct{
+	from s: SW!Variable
+	to
+		ste: AMN!StructTypeElement(
+			name <- s.name,
+			type <- t
+		),
+		t: AMN!NamedConstant(
+			name <- 'STRING_TYPE'	
+		)
+}
+
+rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
+	using {
+		selNames: Set(SW!Variable) = s.select.variables->collect(v|v.name);
+		estVars: Set(String) = s.select.where.patterns->select(p|p.predicate='a')->collect(s|s.subject);
+	}
+	to 
+		ap: AMN!AtomicPredicate(
+			sign <- ':'
+			-- expression <- Sequence{leftExp, rightExp}
+		),
+		-- pp: ICEXT(Patient)
+		leftExp: AMN!Variable(
+			name <- pattern.subject
+		),
+		rightExp: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- rightVar
+		),
+		rightVar: AMN!Variable(
+			name <- pattern.object	
+		),
+		-- (pp |-> rcrd'name): IEXT_String_Range(hasName)
+		-- from select
+		
+		leftExp1Bracket: AMN!Bracketed(
+			predicate <- leftExp1
+		),
+		leftExp1: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{leftExp1Var, leftExp1Name}
+		),
+		leftExp1Var: AMN!Variable(
+			name <- pattern.subject	
+		),
+		leftExp1Name: AMN!Variable(
+			name <- 'rcrd\'' + 	pattern.object
+		),
+		rightExp1: AMN!FunctionalExpression(
+			sign <- 'IEXT_string_Range',
+			expression <- rightExp1Var
+		),
+		rightExp1Var: AMN!Variable(
+			name <- pattern.predicate	
+		),
+		-- (pp |-> tumor): IEXT(hasNeoplasm)
+		leftExp2Bracket: AMN!Bracketed(
+			predicate <- leftExp2
+		),
+		leftExp2: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{leftExp2Var1, leftExp2Var2}
+		), 
+		leftExp2Var1: AMN!Variable(
+			name <- pattern.subject
+		),
+		leftExp2Var2: AMN!Variable(
+			name <- pattern.object	
+		),
+		rightExp2: AMN!FunctionalExpression(
+			sign <- 'IEXT',
+			expression <- rightExp2Var
+		),
+		rightExp2Var: AMN!Variable(
+			name <- pattern.predicate	
+		),
+		--(tumor |-> stageIIIa): IEXT_CancerStage_Range(hasStage)
+		leftExp3Bracket: AMN!Bracketed(
+			predicate <- leftExp3
+		),
+		leftExp3: AMN!AtomicPredicate(
+			sign <- '|->',
+			expression <- Sequence{leftExp3Var1, leftExp3Var2}
+		), 
+		leftExp3Var1: AMN!Variable(
+			name <- pattern.subject
+		),
+		leftExp3Var2: AMN!Variable(
+			name <- pattern.object	
+		),
+		rightExp3: AMN!FunctionalExpression(
+			sign <- 'IEXT_hasStage_Range',
+			expression <- rightExp3Var
+		),
+		rightExp3Var: AMN!Variable(
+			name <- pattern.predicate	
+		)
+	do{
+		if (pattern.predicate = 'a') {
+			ap.expression <- Sequence{leftExp, rightExp};	
+		}
+		else{
+			if (selNames->includes(pattern.object)){
+				ap.expression <- Sequence{leftExp1Bracket, rightExp1};	
+			}
+			else{
+				if (thisModule.gEnumDT->includes(pattern.predicate)) {
+					ap.expression <- Sequence{leftExp3Bracket, rightExp3};	
+				}
+				else{
+					ap.expression <- Sequence{leftExp2Bracket, rightExp2};	
+				}
+			}
+		}
+		ap;
 	}
 }
 
@@ -206,12 +522,14 @@ lazy rule initPropertySet{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
 			initSet.name <- 'IP_' + o.shortName + '_Range';
+			thisModule.gEnumDT <- thisModule.gEnumDT->including(o.shortName);
 		}
 		else{
 			thisModule.debug('range:' + range.shortName);
 			if (thisModule.isBuiltinDatatype(range.shortName)) {
 				-- built-in datatype
 				initSet.name <- 'IP_' + range.shortName + '_Range';
+				thisModule.gBuiltinDT <- thisModule.gBuiltinDT->including(range.shortName);
 			}
 			else {
 				-- non built-in datatype
@@ -222,24 +540,151 @@ lazy rule initPropertySet{
 	}
 }
 
-lazy rule initPropertyAbstractConstans{
-	from o: SW!Property
+rule initPropertyAbstractConstans(o: SW!Property){
 	using {
 		range: SW!Class = o.range;
 		domain: SW!Class = o.domain;
-		setName: String = 'IP';
+		setName: Set(String) = Set{};
 	}
-	to
-		namedConstant: AMN!Variable(
-			name <- ''
-		)
 	do{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
-			namedConstant.name <- 'IL_' + o.shortName;
+			setName <- setName->including('IS_IP_' + o.shortName + '_Range');
+			setName <- setName->including('IL_' + o.shortName);
 		}
+		else{
+			if (thisModule.isBuiltinDatatype(range.shortName)) {
+				setName <- setName->including('IS_IP_' + range.shortName + '_Range');
+			}
+		}
+		setName;
 	}
 }
+
+rule initPropertiesIRI(abstractConstant:String) {
+	using {
+		acSetName: String = abstractConstant.substring(3, abstractConstant.size());
+	}
+	to	
+		isipIRI: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{isipIRIVar, iriPred}
+		),
+		isipIRIVar: AMN!NamedConstant(
+			name <- abstractConstant
+		),
+		iriPred: AMN!AtomicPredicate(
+			sign <- '+->',
+			expression <- Sequence{iriLeftVar, iriRightVar}
+		),
+		iriLeftVar: AMN!NamedConstant(
+			name <- 'IRI'	
+		),
+		iriRightVar: AMN!NamedConstant(
+			name <- acSetName
+		)
+	do {
+		isipIRI;
+	}
+}
+
+rule initPropertiesFIN(abstractConstant:String) {
+	to	
+		isipFIN: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{isipFINVar, finPred}	
+		),
+		isipFINVar: AMN!NamedConstant(
+			name <- abstractConstant
+		),
+		finPred: AMN!FunctionalExpression(
+			sign <- 'FIN',
+			expression <- finVar
+		),
+		finVar: AMN!NamedConstant(
+			name <- abstractConstant
+		)
+	do {
+		isipFIN;
+	}
+}
+
+rule initPropertiesDOM(abstractConstants:Sequence(String)) {
+	using {
+		ac: String = abstractConstants->first();
+	}
+	to	
+		iri: AMN!AtomicPredicate(
+			sign <- '=',
+			expression <- Sequence{iriConst, domBin} 
+		),
+		iriConst: AMN!NamedConstant(
+			name <- 'IRI'
+		),
+		domBin: AMN!BinaryOperator(
+			sign <- '\\/',
+			noBracket <- true,
+			expression <- abstractConstants->collect(c|thisModule.initPropertiesDOMFunc(c))
+		)
+	do {
+		iri;
+	}
+}
+
+rule initPropertiesDOMFunc(ac: String) {
+	to
+		domFunc: AMN!FunctionalExpression(
+			sign <- 'dom',
+			expression <- domConst
+		),
+		domConst: AMN!NamedConstant(
+			name <- ac	
+		)
+	do {
+		domFunc;	
+	}
+}
+
+rule initPropertiesCardDOM(abstractConstants:Sequence(String)) {
+	using {
+		ac: String = abstractConstants->first();
+	}
+	to	
+		iri: AMN!AtomicPredicate(
+			sign <- '=',
+			expression <- Sequence{iriConst, domBin} 
+		),
+		iriConst: AMN!NamedConstant(
+			name <- 'IRI'
+		),
+		domBin: AMN!BinaryOperator(
+			sign <- '+',
+			noBracket <- true,
+			expression <- abstractConstants->collect(c|thisModule.initPropertiesCardDOMFunc(c))
+		)
+	do {
+		iri;
+	}
+}
+
+rule initPropertiesCardDOMFunc(ac: String) {
+	to
+		cardFunc: AMN!FunctionalExpression(
+			sign <- 'card',
+			expression <- domFunc
+		),
+		domFunc: AMN!FunctionalExpression(
+			sign <- 'dom',
+			expression <- domConst
+		),
+		domConst: AMN!NamedConstant(
+			name <- ac	
+		)
+	do {
+		cardFunc;	
+	}
+}
+
 
 lazy rule initPropertyInvariant{
 	from o: SW!Property

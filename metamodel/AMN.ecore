@@ -26,6 +26,8 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
         eType="#//AMNPredicate/Predicate" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="definitions" upperBound="-1"
+        eType="#//Definition" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="AbstractMachine" eSuperTypes="#//Machine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="constraints" upperBound="-1"
@@ -71,6 +73,10 @@
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="substitution" lowerBound="1"
         eType="#//AMNSubstitution/Substitution" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Definition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eSubpackages name="AMNPredicate" nsURI="http://synthesis.ipi.ac.ru/amn/predicate"
       nsPrefix="amn-pred">
@@ -124,8 +130,9 @@
           eType="#//AMNExpression/Expression" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="BinaryOperator" eSuperTypes="#//AMNExpression/OperationalExpression">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="expression" lowerBound="2"
-          upperBound="2" eType="#//AMNExpression/Expression" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="expression" upperBound="-1"
+          eType="#//AMNExpression/Expression" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="noBracket" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="FunctionalExpression" eSuperTypes="#//AMNExpression/OperationalExpression">
       <eStructuralFeatures xsi:type="ecore:EReference" name="expression" upperBound="-1"
