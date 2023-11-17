@@ -1,47 +1,48 @@
-REFINEMENT hospital
+REFINEMENT Hospital
 
-REFINES Hospital
+REFINES HospitalAM
 
 SEES
 	ContextRDF
 
 SETS
-	IC = {Thing, BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC},
-	IP_string_Range = {hasName},
-	IP = {hasNeoplasm},
-	IP_hasStage_Range = {hasStage}
+	IC = {Thing, BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, Neoplasm, Patient, Person, SCLC};
+	IP_string_Range = {hasName};
+	IP = {hasNeoplasm};
+	IP_dthasStage_Range = {hasStage};
+	dthasStage = {stageI, stageII, stageIII, stageIIIa, stageIIIb, stageIV}
 
 DEFINITIONS
-	STRING_TYPE == seq(0..255
+	STRING_TYPE == seq(0..255)
 
 ABSTRACT_CONSTANTS
 	IS_IP,
 	IS_IP_string_Range,
-	IL_hasStage,
-	IS_IP_hasStage_Range
+	IL_dthasStage,
+	IS_IP_dthasStage_Range
 
 PROPERTIES
-	IS_IP : IRI +-> _IP &
-	IS_IP_string_Range : IRI +-> _IP_string_Range &
-	IL_hasStage : IRI +-> _hasStage &
-	IS_IP_hasStage_Range : IRI +-> _IP_hasStage_Range &
+	IS_IP : IRI +-> IP &
+	IS_IP_string_Range : IRI +-> IP_string_Range &
+	IL_dthasStage : IRI +-> dthasStage &
+	IS_IP_dthasStage_Range : IRI +-> IP_dthasStage_Range &
 	IS_IP : FIN(IS_IP) &
 	IS_IP_string_Range : FIN(IS_IP_string_Range) &
-	IL_hasStage : FIN(IL_hasStage) &
-	IS_IP_hasStage_Range : FIN(IS_IP_hasStage_Range) &
-	IRI = dom(IS_IP) \/ dom(IS_IP_string_Range) \/ dom(IL_hasStage) \/ dom(IS_IP_hasStage_Range) &
-	IRI = card(dom(IS_IP)) + card(dom(IS_IP_string_Range)) + card(dom(IL_hasStage)) + card(dom(IS_IP_hasStage_Range))
+	IL_dthasStage : FIN(IL_dthasStage) &
+	IS_IP_dthasStage_Range : FIN(IS_IP_dthasStage_Range) &
+	IRI = dom(IS_IR) \/ dom(IS_IP) \/ dom(IS_IP_string_Range) \/ dom(IL_dthasStage) \/ dom(IS_IP_dthasStage_Range) &
+	card(IRI) = card(dom(IS_IR)) + card(dom(IS_IP)) + card(dom(IS_IP_string_Range)) + card(dom(IL_dthasStage)) + card(dom(IS_IP_dthasStage_Range))
 
 ABSTRACT_VARIABLES
 	IEXT,
-	IEXT_hasStage_Range,
+	IEXT_dthasStage_Range,
 	IEXT_string_Range,
 	ICEXT
 
 INVARIANT
 	IEXT_string_Range : IP_string_Range --> POW(IR * STRING_TYPE) &
-	IEXT : IP --> POW(IR * IP) &
-	IEXT_hasStage_Range : IP_hasStage_Range --> POW(IR * hasStage) &
+	IEXT : IP --> POW(IR * IR) &
+	IEXT_dthasStage_Range : IP_dthasStage_Range --> POW(IR * dthasStage) &
 	ICEXT : IC --> POW(IR) &
 	ICEXT(Thing) = IR &
 	ICEXT(Neoplasm) <: ICEXT(BenignNeoplasm) &
@@ -53,26 +54,24 @@ INVARIANT
 	ICEXT(LungCancer) <: ICEXT(SCLC) &
 	card(ICEXT(Patient)) <= NN &
 	card(ICEXT(Neoplasm)) <= NN &
-	IEXT_string_Range : IP_string_Range -> POW(IP * STRING_TYPE) &
-	IEXT_hasStage_Range : IP_hasStage_Range -> POW(IP * hasStage) &
-	!xx , yy . (xx : IR &
+	!(xx , yy) . ((xx : IR) &
 		yy : IR &
-		xx |-> yy : IEXT(hasNeoplasm) => xx : ICEXT(Patient)) &
-	!xx , yy . (xx : IR &
-		yy : hasStage &
-		xx |-> yy : IEXT_hasStage_Range(hasStage) => xx : ICEXT(Neoplasm)) &
-	!xx , yy . (xx : IR &
+		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Patient)) &
+	!(xx , yy) . ((xx : IR) &
+		yy : dthasStage &
+		(xx |-> yy) : IEXT_dthasStage_Range(hasStage) => xx : ICEXT(Neoplasm)) &
+	!(xx , yy) . ((xx : IR) &
 		yy : IR &
-		xx |-> yy : IEXT(hasNeoplasm) => xx : ICEXT(Neoplasm))
+		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Neoplasm))
 
 INITIALISATION
 IEXT_string_Range := {hasName |-> {}}
 	||
 IEXT := {hasNeoplasm |-> {}}
 	||
-IEXT_hasStage_Range := {hasStage |-> {}}
+IEXT_dthasStage_Range := {hasStage |-> {}}
 	||
-ICEXT := {Thing |-> IR, BenignNeoplasm |-> { }, Cancer |-> { }, LungCancer |-> { }, MalignantNeoplasm |-> { }, NSCLC |-> { }, Neoplasm |-> { }, Patient |-> { }, Person |-> { }, SCLC |-> { }}
+ICEXT := {Thing |-> IR, BenignNeoplasm |-> {}, Cancer |-> {}, LungCancer |-> {}, MalignantNeoplasm |-> {}, NSCLC |-> {}, Neoplasm |-> {}, Patient |-> {}, Person |-> {}, SCLC |-> {}}
 
 OPERATIONS
 	res <-- patientsWithTumorOfStageIIIa = 
@@ -80,10 +79,10 @@ OPERATIONS
 			res := {rcrd | rcrd : struct(
 				name: STRING_TYPE
 				) &
-			#(p, tumor).(p : ICEXT(Patient) &
-				(p |-> rcrd'name) : IEXT_string_Range(hasName) &
-				(p |-> tumor) : IEXT(hasNeoplasm) &
+			#(pp, tumor).(pp : ICEXT(Patient) &
+				(pp |-> rcrd'name) : IEXT_string_Range(hasName) &
+				(pp |-> tumor) : IEXT(hasNeoplasm) &
 				tumor : ICEXT(Neoplasm) &
-				(tumor |-> stage-IIIa) : IEXT_hasStage_Range(hasStage))}	END
+				(tumor |-> stageIIIa) : IEXT_dthasStage_Range(hasStage))}	END
 
 END

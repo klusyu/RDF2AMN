@@ -31,16 +31,18 @@ rule RDF2Refinement{
 		iext: String = 'IEXT';
 		objectProperties: Set(SW!ObjectProperty) = rd.owlObjectProperty;
 		datatypeProperties: Set(SW!DatatypeProperty) = rd.owlDatatypeProperty;
+		refName:String = rd.owlOntology->collect(c|c.shortName).first();
 	}
 	to 
 		
 		ref: AMN!Refinement(
-			name <- rd.owlOntology->collect(c|c.shortName),
+			name <- refName.substring(1,1).toUpper() + refName.substring(2,refName.size()),
 			refines <- am,
 			sees <- ctxt,
 			sets <- classSet,
 			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
 			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o)),
+			sets <- stageSet,
 			definitions <- defin,
 			abstractVariables <- thisModule.initAbstractVariables(rd).abstractVariables,
 			abstractConstants <- 'IS_IP',
@@ -50,8 +52,8 @@ rule RDF2Refinement{
 			invariant <- thisModule.initAbstractVariables(rd).invariant,
 			invariant <- Sequence{inVariant},
 			invariant <- rd.owlObjectProperty->collect(o|thisModule.initObjectPropertyInvariant(o)),
-			invariant <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
-			invariant <- rd.owlObjectProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
+			--invariant <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
+			--invariant <- rd.owlObjectProperty->collect(o | thisModule.initPropertyInvariant(o))->select(o|o.sign.size()>0),
 			invariant <- rd.owlObjectProperty->collect(o | thisModule.initObjectPropertyDomainInvariant(o)),
 			invariant <- rd.owlObjectProperty->select(o|not o.range.oclIsUndefined())->collect(o | thisModule.initObjectPropertyRangeInvariant(o)),
 			initialization <- thisModule.initAbstractVariables(rd).initialization,
@@ -64,18 +66,82 @@ rule RDF2Refinement{
 		),
 		--- REFINES
 		am: AMN!AbstractMachine(
-			name <- 'Hospital'
+			name <- ref.name + 'AM',
+			sees <- ctxt,
+			definitions <- refsDef,
+			operations <- refsOper
 		),
+		refsDef: AMN!Definition(
+			name <- 'STRING_TYPE',
+			type <- 'seq(0..255)'
+		),
+		refsOper: AMN!Operation(
+			name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
+			outputParams <- 'res',
+			substitution <- block
+		),
+		block: AMN!Block(
+			substitution <- any
+		),
+		any : AMN!Any(
+			any <- 'res1',
+			where <- anyPred,
+			thenPart <- thenEqual
+		),
+		anyPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{anyExpVar, anyExp}
+		),
+		anyExpVar: AMN!Variable(
+			name <- 'res1'
+		),
+		anyExp: AMN!FunctionalExpression(
+			sign <- 'POW',
+			expression <- anySt
+		),
+		anySt: AMN!StructType(
+			element <- anyStT
+		),
+		anyStT: AMN!StructTypeElement(
+			name <- 'name',
+			type <- anyStTVar
+		),
+		anyStTVar: AMN!Variable(
+			name <- 'STRING_TYPE'	
+		),
+		thenEqual: AMN!BecomesEqual(
+			leftExpression <- thenLeftExp,
+			rightExpression <- thenRightExp
+		),
+		thenLeftExp: AMN!Variable(
+			name <- 'res'
+		),
+		thenRightExp: AMN!Variable(
+			name <- 'res1'
+		),
+		
 		--- SETS
 		classSet: AMN!SetDecl(
 			name <- 'IC',
 			element <- 'Thing',
 			element <- rd.owlClass->collect(c|c.shortName)
 		),
+		--- TODO: How to get stage?
+		stageSet: AMN!SetDecl(
+			name <- 'dthasStage',
+			element <- Sequence{'stageI', 'stageII', 'stageIII', 'stageIIIa', 'stageIIIb', 'stageIV'}
+		),
 		--- DEFINITIONS
 		defin: AMN!Definition(
 			name <- 'STRING_TYPE',
 			type <- 'seq(0..255)'
+		),
+		defExp: AMN!FunctionalExpression(
+			sign <- 'seq',
+			expression <- defVar
+		),
+		defVar: AMN!Variable(
+			name <- '0..255'
 		),
 		--- PROPERTIES
 		conjProperties: AMN!Conjunction(
@@ -133,7 +199,7 @@ unique lazy rule initAbstractVariables{
 		pWithRange: Set(SW!Property) = properties->select(p|not p.range.oclIsUndefined());
 		pWithoutRange: Set(SW!Property) = properties->select(p|p.range.oclIsUndefined());
 		pBuiltin: Set(SW!Property) = pWithRange->select(p|thisModule.isBuiltinDatatype(p.range.shortName));
-		acs: Set(String) = pWithoutRange->collect(p|p.shortName)->union(pBuiltin->collect(p|p.range.shortName));
+		acs: Set(String) = pWithoutRange->collect(p|'dt'+p.shortName)->union(pBuiltin->collect(p|p.range.shortName));
 		iext: String = 'IEXT';
 		icext: String = 'ICEXT';
 	}
@@ -197,7 +263,7 @@ rule initACSet(p: SW!Property){
 	do{
 		if (p.range.oclIsUndefined()) {
 			-- enumeration datatype
-			ac <- 'IEXT_' + ac + '_Range';
+			ac <- 'IEXT_dt' + ac + '_Range';
 		}
 		else{
 			if (thisModule.isBuiltinDatatype(p.range.shortName)) {
@@ -250,9 +316,9 @@ rule initACInvariant(p: SW!Property){
 	do{
 		if (p.range.oclIsUndefined()) {
 			-- enumeration datatype
-			initVar.name <- 'IEXT_' + ac + '_Range';
-			rightIP.name <- 'IP_' + ac + '_Range';
-			mulVar.name <- ac;
+			initVar.name <- 'IEXT_dt' + ac + '_Range';
+			rightIP.name <- 'IP_dt' + ac + '_Range';
+			mulVar.name <- 'dt' + ac;
 		}
 		else{
 			if (thisModule.isBuiltinDatatype(p.range.shortName)) {
@@ -265,7 +331,7 @@ rule initACInvariant(p: SW!Property){
 				-- non built-in datatype
 				initVar.name <- 'IEXT';
 				rightIP.name <- 'IP';
-				mulVar.name <- 'IP';
+				mulVar.name <- 'IR';
 			}
 		}
 		leftInv;	
@@ -301,7 +367,7 @@ lazy rule Sparql2Operation{
 		res : String = 'res';
 	}
 	to oper: AMN!Operation(
-		name <- 'patientsWithTumorOfStageIIIa', --- How to get such name?
+		name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
 		outputParams <- res,
 		substitution <-block
 	),
@@ -333,7 +399,7 @@ lazy rule Sparql2Operation{
 		element <- s.select.variables->collect(v | thisModule.selvar2struct(v))
 	),
 	estPred: AMN!ExistentialPredicate(
-		variable <- s.select.where.patterns->select(p|p.predicate='a')->collect(s|s.subject),
+		variable <- s.select.where.patterns->select(p|p.predicate='a')->collect(s|if s.subject.size() < 2 then s.subject + s.subject else s.subject endif),
 		predicate <- estConj
 	),
 	estConj: AMN!Conjunction(
@@ -360,6 +426,7 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 	using {
 		selNames: Set(SW!Variable) = s.select.variables->collect(v|v.name);
 		estVars: Set(String) = s.select.where.patterns->select(p|p.predicate='a')->collect(s|s.subject);
+		subject:String = if pattern.subject.size() < 2 then pattern.subject + pattern.subject else pattern.subject endif;
 	}
 	to 
 		ap: AMN!AtomicPredicate(
@@ -368,7 +435,7 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 		),
 		-- pp: ICEXT(Patient)
 		leftExp: AMN!Variable(
-			name <- pattern.subject
+			name <- subject
 		),
 		rightExp: AMN!FunctionalExpression(
 			sign <- 'ICEXT',
@@ -388,7 +455,7 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 			expression <- Sequence{leftExp1Var, leftExp1Name}
 		),
 		leftExp1Var: AMN!Variable(
-			name <- pattern.subject	
+			name <- subject	
 		),
 		leftExp1Name: AMN!Variable(
 			name <- 'rcrd\'' + 	pattern.object
@@ -409,7 +476,7 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 			expression <- Sequence{leftExp2Var1, leftExp2Var2}
 		), 
 		leftExp2Var1: AMN!Variable(
-			name <- pattern.subject
+			name <- subject
 		),
 		leftExp2Var2: AMN!Variable(
 			name <- pattern.object	
@@ -430,13 +497,13 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 			expression <- Sequence{leftExp3Var1, leftExp3Var2}
 		), 
 		leftExp3Var1: AMN!Variable(
-			name <- pattern.subject
+			name <- subject
 		),
 		leftExp3Var2: AMN!Variable(
-			name <- pattern.object	
+			name <- pattern.object
 		),
 		rightExp3: AMN!FunctionalExpression(
-			sign <- 'IEXT_hasStage_Range',
+			sign <- 'IEXT_dthasStage_Range',
 			expression <- rightExp3Var
 		),
 		rightExp3Var: AMN!Variable(
@@ -475,7 +542,7 @@ lazy rule initClass {
 			value <- c.shortName	
 		),
 		rightExp: AMN!StringValue(
-			value <- '{ }'	
+			value <- '{}'	
 		)
 }
 
@@ -521,7 +588,7 @@ lazy rule initPropertySet{
 		--- set SETS
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
-			initSet.name <- 'IP_' + o.shortName + '_Range';
+			initSet.name <- 'IP_dt' + o.shortName + '_Range';
 			thisModule.gEnumDT <- thisModule.gEnumDT->including(o.shortName);
 		}
 		else{
@@ -549,8 +616,8 @@ rule initPropertyAbstractConstans(o: SW!Property){
 	do{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
-			setName <- setName->including('IS_IP_' + o.shortName + '_Range');
-			setName <- setName->including('IL_' + o.shortName);
+			setName <- setName->including('IS_IP_dt' + o.shortName + '_Range');
+			setName <- setName->including('IL_dt' + o.shortName);
 		}
 		else{
 			if (thisModule.isBuiltinDatatype(range.shortName)) {
@@ -563,7 +630,7 @@ rule initPropertyAbstractConstans(o: SW!Property){
 
 rule initPropertiesIRI(abstractConstant:String) {
 	using {
-		acSetName: String = abstractConstant.substring(3, abstractConstant.size());
+		acSetName: String = abstractConstant.substring(4, abstractConstant.size());
 	}
 	to	
 		isipIRI: AMN!AtomicPredicate(
@@ -624,6 +691,7 @@ rule initPropertiesDOM(abstractConstants:Sequence(String)) {
 		domBin: AMN!BinaryOperator(
 			sign <- '\\/',
 			noBracket <- true,
+			expression <- thisModule.initPropertiesDOMFunc('IS_IR'),
 			expression <- abstractConstants->collect(c|thisModule.initPropertiesDOMFunc(c))
 		)
 	do {
@@ -652,7 +720,11 @@ rule initPropertiesCardDOM(abstractConstants:Sequence(String)) {
 	to	
 		iri: AMN!AtomicPredicate(
 			sign <- '=',
-			expression <- Sequence{iriConst, domBin} 
+			expression <- Sequence{iriCard, domBin} 
+		),
+		iriCard: AMN!FunctionalExpression(
+			sign <- 'card',
+			expression <- iriConst
 		),
 		iriConst: AMN!NamedConstant(
 			name <- 'IRI'
@@ -660,6 +732,7 @@ rule initPropertiesCardDOM(abstractConstants:Sequence(String)) {
 		domBin: AMN!BinaryOperator(
 			sign <- '+',
 			noBracket <- true,
+			expression <- thisModule.initPropertiesCardDOMFunc('IS_IR'),
 			expression <- abstractConstants->collect(c|thisModule.initPropertiesCardDOMFunc(c))
 		)
 	do {
@@ -720,8 +793,8 @@ lazy rule initPropertyInvariant{
 	do {
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
-			leftExp.name <- 'IEXT_' + o.shortName + '_Range';
-			ipLeft.name <- 'IP_' + o.shortName + '_Range';
+			leftExp.name <- 'IEXT_dt' + o.shortName + '_Range';
+			ipLeft.name <- 'IP_dt' + o.shortName + '_Range';
 			strConst.name <- o.shortName;
 			ap.sign <- ':';
 		}
@@ -847,8 +920,8 @@ lazy rule initObjectPropertyDomainInvariant{
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
 			-- domain
-			ryir.name <- o.shortName;
-			r4iext.sign <- 'IEXT_' + o.shortName + '_Range';
+			ryir.name <- 'dt' + o.shortName;
+			r4iext.sign <- 'IEXT_dt' + o.shortName + '_Range';
 		}
 		else{
 			if (not thisModule.isBuiltinDatatype(range.shortName)) {
@@ -958,6 +1031,8 @@ lazy rule initObjectPropertyRangeInvariant{
 		)
 		
 	do {
+		thisModule.debug('-------DEBUG--------');
+		thisModule.debug(r3xxyy.noBracket);
 		if (range.oclIsUndefined()) {
 			-- enumeration datatype
 			-- domain

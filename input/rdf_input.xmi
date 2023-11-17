@@ -7,6 +7,7 @@
 
 	
 <sw:RDFDocument>
+	
 	<sparql>
 		<prefix name="inst" uri="http://example.org/hospital/instances/"/>
 		<prefix name="" uri="http://example.org/hospital#"/>
@@ -18,10 +19,11 @@
 				<patterns subject="p" predicate="hasName" object="name"/>
 				<patterns subject="p" predicate="hasNeoplasm" object="tumor"/>
 				<patterns subject="tumor" predicate="a" object="Neoplasm"/>
-				<patterns subject="tumor" predicate="hasStage" object="stage-IIIa"/>
+				<patterns subject="tumor" predicate="hasStage" object="stageIIIa"/>
 			</where>
 		</select>
 	</sparql>
+	
     <owlOntology about="http://example.org/hospital" shortName="hospital"/>
     
 

@@ -1,3 +1,0 @@
-MACHINE Hospital
-
-END
