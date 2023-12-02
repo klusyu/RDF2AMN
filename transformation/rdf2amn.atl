@@ -34,10 +34,13 @@ rule RDF2Refinement{
 		refName:String = rd.owlOntology->collect(c|c.shortName).first();
 	}
 	to 
-		
+		--- SEES
+		ctxt: AMN!AbstractMachine(
+			name <- 'ContextRDF'
+		),
 		ref: AMN!Refinement(
 			name <- refName.substring(1,1).toUpper() + refName.substring(2,refName.size()),
-			refines <- am,
+			refines <- thisModule.initRefines(ctxt, ref.name),
 			sees <- ctxt,
 			sets <- classSet,
 			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
@@ -60,65 +63,7 @@ rule RDF2Refinement{
 			operations <- rd.sparql->collect(s | thisModule.Sparql2Operation(s))
 			
 		),
-		--- SEES
-		ctxt: AMN!AbstractMachine(
-			name <- 'ContextRDF'
-		),
 		--- REFINES
-		am: AMN!AbstractMachine(
-			name <- ref.name + 'AM',
-			sees <- ctxt,
-			definitions <- refsDef,
-			operations <- refsOper
-		),
-		refsDef: AMN!Definition(
-			name <- 'STRING_TYPE',
-			type <- 'seq(0..255)'
-		),
-		refsOper: AMN!Operation(
-			name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
-			outputParams <- 'res',
-			substitution <- block
-		),
-		block: AMN!Block(
-			substitution <- any
-		),
-		any : AMN!Any(
-			any <- 'res1',
-			where <- anyPred,
-			thenPart <- thenEqual
-		),
-		anyPred: AMN!AtomicPredicate(
-			sign <- ':',
-			expression <- Sequence{anyExpVar, anyExp}
-		),
-		anyExpVar: AMN!Variable(
-			name <- 'res1'
-		),
-		anyExp: AMN!FunctionalExpression(
-			sign <- 'POW',
-			expression <- anySt
-		),
-		anySt: AMN!StructType(
-			element <- anyStT
-		),
-		anyStT: AMN!StructTypeElement(
-			name <- 'name',
-			type <- anyStTVar
-		),
-		anyStTVar: AMN!Variable(
-			name <- 'STRING_TYPE'	
-		),
-		thenEqual: AMN!BecomesEqual(
-			leftExpression <- thenLeftExp,
-			rightExpression <- thenRightExp
-		),
-		thenLeftExp: AMN!Variable(
-			name <- 'res'
-		),
-		thenRightExp: AMN!Variable(
-			name <- 'res1'
-		),
 		
 		--- SETS
 		classSet: AMN!SetDecl(
@@ -189,6 +134,69 @@ rule RDF2Refinement{
 		thisModule.debug('RDF2Refinement: do!');
 		thisModule.debug(thisModule.resolveTemp(rd.sparql->first(), 'vmn'));
 		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');	
+	}
+}
+
+rule initRefines(ctxt: AMN!AbstractMachine, name: String){
+	to 
+		am: AMN!AbstractMachine(
+			name <- name, --ref.name + 'AM',
+			sees <- ctxt,
+			definitions <- refsDef,
+			operations <- refsOper
+		),
+		refsDef: AMN!Definition(
+			name <- 'STRING_TYPE',
+			type <- 'seq(0..255)'
+		),
+		refsOper: AMN!Operation(
+			name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
+			outputParams <- 'res',
+			substitution <- block
+		),
+		block: AMN!Block(
+			substitution <- any
+		),
+		any : AMN!Any(
+			any <- 'res1',
+			where <- anyPred,
+			thenPart <- thenEqual
+		),
+		anyPred: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{anyExpVar, anyExp}
+		),
+		anyExpVar: AMN!Variable(
+			name <- 'res1'
+		),
+		anyExp: AMN!FunctionalExpression(
+			sign <- 'POW',
+			expression <- anySt
+		),
+		anySt: AMN!StructType(
+			element <- anyStT
+		),
+		anyStT: AMN!StructTypeElement(
+			name <- 'name',
+			type <- anyStTVar
+		),
+		anyStTVar: AMN!Variable(
+			name <- 'STRING_TYPE'	
+		),
+		thenEqual: AMN!BecomesEqual(
+			leftExpression <- thenLeftExp,
+			rightExpression <- thenRightExp
+		),
+		thenLeftExp: AMN!Variable(
+			name <- 'res'
+		),
+		thenRightExp: AMN!Variable(
+			name <- 'res1'
+		)
+	do{
+		thisModule.debug('ctxt name:');
+		thisModule.debug(ctxt.name);
+		am;
 	}
 }
 

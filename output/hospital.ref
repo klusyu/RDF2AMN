@@ -1,6 +1,6 @@
 REFINEMENT Hospital
 
-REFINES HospitalAM
+REFINES Hospital
 
 SEES
 	ContextRDF
