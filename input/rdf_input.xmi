@@ -55,6 +55,7 @@
 
     <owlObjectProperty about="http://example.org/hospital#hasStage" shortName="hasStage">
         <domain resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
+        <range resource="http://example.org/hospital#NeoplasmStage"/>
     </owlObjectProperty>
     
 
@@ -135,12 +136,34 @@
         <subClassOf resource="http://example.org/hospital#LungCancer" shortName="LungCancer"/>
     </owlClass>
     
+    
+	
+	<!-- http://example.org/hospital#NSCLCStage -->
 
+
+    <owlClass about="http://example.org/hospital#NSCLCStage">
+        <subClassOf resource="http://example.org/hospital#NeoplasmStage"/>
+        <subClassOf>
+            <owlRestriction>
+                <owlonProperty resource="http://example.org/hospital#hasStage"/>
+                <owlallValuesFrom resource="http://example.org/hospital#NSCLCStage"/>
+            </owlRestriction>
+        </subClassOf>
+    </owlClass>
+    
+    
 
     <!-- http://example.org/hospital#Neoplasm -->
 
 
     <owlClass about="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
+    
+    
+    
+    <!-- http://example.org/hospital#NeoplasmStage -->
+
+
+    <owlClass about="http://example.org/hospital#NeoplasmStage"/>
     
 
 
@@ -166,6 +189,102 @@
     <owlClass about="http://example.org/hospital#SCLC" shortName="SCLC">
         <subClassOf resource="http://example.org/hospital#LungCancer" shortName="LungCancer"/>
     </owlClass>
+    
+    
+    
+    <!-- http://example.org/hospital#SCLCStage -->
+
+
+    <owlClass about="http://example.org/hospital#SCLCStage">
+        <subClassOf resource="http://example.org/hospital#NeoplasmStage"/>
+        <subClassOf>
+            <owlRestriction>
+                <owlonProperty resource="http://example.org/hospital#hasStage"/>
+                <owlallValuesFrom resource="http://example.org/hospital#SCLCStage"/>
+            </owlRestriction>
+        </subClassOf>
+    </owlClass>
+    
+    
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-I -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-I">
+        <type resource="http://example.org/hospital#NSCLCStage"/>
+    </owlNamedIndividual>
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-II -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-II">
+        <type resource="http://example.org/hospital#NSCLCStage"/>
+    </owlNamedIndividual>
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-III -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-III">
+        <type resource="http://example.org/hospital#NSCLCStage"/>
+    </owlNamedIndividual>
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-IIIa -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIa"/>
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-IIIb -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIb"/>
+    
+
+
+    <!-- http://example.org/hospital#NSCLC-stage-IV -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IV">
+        <type resource="http://example.org/hospital#NSCLCStage"/>
+    </owlNamedIndividual>
+    
+
+
+    <!-- http://example.org/hospital#SCLC-stage-Extensive -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Extensive">
+        <type resource="http://example.org/hospital#SCLCStage"/>
+    </owlNamedIndividual>
+    
+
+
+    <!-- http://example.org/hospital#SCLC-stage-Limited -->
+
+
+    <owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Limited">
+        <type resource="http://example.org/hospital#SCLCStage"/>
+    </owlNamedIndividual>
+    
 </sw:RDFDocument>
 </xmi:XMI>
 
