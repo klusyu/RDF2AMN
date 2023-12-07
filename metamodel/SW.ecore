@@ -51,7 +51,10 @@
     <eClassifiers xsi:type="ecore:EClass" name="ContainerMembershipProperty" eSuperTypes="#//RDF/Property"/>
   </eSubpackages>
   <eSubpackages name="OWL" nsURI="https://www.w3.org/2002/07/owl#" nsPrefix="OWL">
-    <eClassifiers xsi:type="ecore:EClass" name="OWLClass" abstract="true" eSuperTypes="#//RDFS/Class"/>
+    <eClassifiers xsi:type="ecore:EClass" name="OWLClass" abstract="true" eSuperTypes="#//RDFS/Class">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="owlRestriction" eType="#//OWL/Restriction"
+          containment="true"/>
+    </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Ontology" eSuperTypes="#//RDFS/Resource"/>
     <eClassifiers xsi:type="ecore:EClass" name="OntologyProperty" eSuperTypes="#//RDF/Property"/>
     <eClassifiers xsi:type="ecore:EClass" name="DatatypeProperty" eSuperTypes="#//RDF/Property"/>
