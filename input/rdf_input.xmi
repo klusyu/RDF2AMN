@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>NSCLC_stage_I
 <xmi:XMI xmi:version="2.0" 
 	xmlns:xmi="http://www.omg.org/XMI"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -19,7 +19,7 @@
 				<patterns subject="p" predicate="hasName" object="name"/>
 				<patterns subject="p" predicate="hasNeoplasm" object="tumor"/>
 				<patterns subject="tumor" predicate="a" object="Neoplasm"/>
-				<patterns subject="tumor" predicate="hasStage" object="stageIIIa"/>
+				<patterns subject="tumor" predicate="hasStage" object="NSCLC_stage_IIIa"/>
 			</where>
 		</select>
 	</sparql>
@@ -219,69 +219,69 @@
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-I -->
+    <!-- http://example.org/hospital#NSCLC_stage_I -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-I">
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_I">
         <type resource="http://example.org/hospital#NSCLCStage"/>
     </owlNamedIndividual>
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-II -->
+    <!-- http://example.org/hospital#NSCLC_stage_II -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-II">
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_II">
         <type resource="http://example.org/hospital#NSCLCStage"/>
     </owlNamedIndividual>
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-III -->
+    <!-- http://example.org/hospital#NSCLC_stage_III -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-III">
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_III">
         <type resource="http://example.org/hospital#NSCLCStage"/>
     </owlNamedIndividual>
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-IIIa -->
+    <!-- http://example.org/hospital#NSCLC_stage_IIIa -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIa"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIa"/>
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-IIIb -->
+    <!-- http://example.org/hospital#NSCLC_stage_IIIb -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIb"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIb"/>
     
 
 
-    <!-- http://example.org/hospital#NSCLC-stage-IV -->
+    <!-- http://example.org/hospital#NSCLC_stage_IV -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IV">
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IV">
         <type resource="http://example.org/hospital#NSCLCStage"/>
     </owlNamedIndividual>
     
 
 
-    <!-- http://example.org/hospital#SCLC-stage-Extensive -->
+    <!-- http://example.org/hospital#SCLC_stage_Extensive -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Extensive">
+    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Extensive">
         <type resource="http://example.org/hospital#SCLCStage"/>
     </owlNamedIndividual>
     
 
 
-    <!-- http://example.org/hospital#SCLC-stage-Limited -->
+    <!-- http://example.org/hospital#SCLC_stage_Limited -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Limited">
+    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Limited">
         <type resource="http://example.org/hospital#SCLCStage"/>
     </owlNamedIndividual>
     
