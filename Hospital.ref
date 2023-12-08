@@ -3,8 +3,8 @@
  * Creation date: 5/25/2022
  */
 
-REFINEMENT CancerRef
-REFINES CancerAM
+REFINEMENT Hospital
+REFINES HospitalAM
 
 SEES ContextRDF
 
@@ -12,17 +12,14 @@ SETS
 
     // Properties  
     IP = { hasNeoplasm };
-    IP_String_Range = { hasName }; 
-    IP_CancerStage_Range = { hasStage };     
+    IP_String_Range = { hasName };    
  
     // RDFS Classes
     IC = { Thing,        
         BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, 
-        NSCLC, Neoplasm, Patient, Person, SCLC 
-    }; 
+        NSCLC, Neoplasm, Patient, Person, SCLC, NeoplasmStage, NSCLCStage, SCLCStage
+    }
 
-    // Datatypes
-    CancerStage = { stageI, stageII, stageIII, stageIIIa, stageIIIb, stageIV }
 
 DEFINITIONS
     STRING_TYPE == seq(0..255)
@@ -31,11 +28,15 @@ ABSTRACT_CONSTANTS
     
     IS_IP, // IRIs for Properties 
     IS_IP_String_Range, // IRI for String range properties 
-    IS_IP_CancerStage_Range, // IRI for CancerStage range properties 
-        
-    IL_CancerStage // IRIs for CancerStage Values 
     
-    , neoplInst
+    NSCLC_stage_I, 
+    NSCLC_stage_II, 
+    NSCLC_stage_III, 
+    NSCLC_stage_IIIa, 
+    NSCLC_stage_IIIb, 
+    NSCLC_stage_IV, 
+    SCLC_stage_Extensive, 
+    SCLC_stage_Limited
 
 PROPERTIES
   
@@ -43,35 +44,35 @@ PROPERTIES
     IS_IP: FIN(IS_IP) &
     IS_IP_String_Range: IRI +-> IP_String_Range &
     IS_IP_String_Range: FIN(IS_IP_String_Range) &
-    IS_IP_CancerStage_Range: IRI +->  IP_CancerStage_Range &
-    IS_IP_CancerStage_Range: FIN(IS_IP_CancerStage_Range) &
-    
-    
-    IL_CancerStage: IRI +-> CancerStage & IL_CancerStage: FIN(IL_CancerStage) &
     
     // Valid for finite interpretations
     IRI = dom(IS_IR) \/ 
-        dom(IS_IP) \/ dom(IS_IP_String_Range) \/ dom(IS_IP_CancerStage_Range) \/       
-        dom(IL_String) \/ dom(IL_CancerStage) &
+        dom(IS_IP) \/ dom(IS_IP_String_Range) \/       
+        dom(IL_String)&
     
     card(IRI) = card(dom(IS_IR)) + card(dom(IS_IP)) + 
-        card(dom(IS_IP_String_Range)) + card(dom(IS_IP_CancerStage_Range)) +
-        card(dom(IL_String)) + card(dom(IL_CancerStage))         
+        card(dom(IS_IP_String_Range)) +
+        card(dom(IL_String)) &
     
-    & neoplInst: IR
+    NSCLC_stage_I: IR &
+    NSCLC_stage_II: IR &
+    NSCLC_stage_III: IR &
+    NSCLC_stage_IIIa: IR &
+    NSCLC_stage_IIIb: IR &
+    NSCLC_stage_IV: IR &
+    SCLC_stage_Extensive: IR &
+    SCLC_stage_Limited: IR
     
 ABSTRACT_VARIABLES
         
     IEXT, // Properties Interpretation
     IEXT_String_Range, // Interpretation for properties with string range
-    IEXT_CancerStage_Range, // Interpretation for properties with CancerStage range
     ICEXT // Classes Interpretation
 
 INVARIANT
     
     IEXT: IP --> POW(IR*IR) &
     IEXT_String_Range: IP_String_Range --> POW(IR*STRING_TYPE) &
-    IEXT_CancerStage_Range: IP_CancerStage_Range --> POW(IR*CancerStage) &
     
     ICEXT: IC --> POW(IR) &
     
@@ -97,21 +98,20 @@ INVARIANT
         xx: ICEXT(Patient) ) &
     // hasNeoplasm range
     !(xx, yy).(xx: IR & yy: IR & (xx|->yy):IEXT(hasNeoplasm) =>
-        yy: ICEXT(Neoplasm) ) &
-    // hasStage domain
-    !(xx, yy).(xx: IR & yy: CancerStage & (xx|->yy): IEXT_CancerStage_Range(hasStage) =>
-        xx: ICEXT(Neoplasm) ) 
+        yy: ICEXT(Neoplasm) )
 
 
 INITIALISATION 
 
     IEXT:= { hasNeoplasm |-> {} } ||
     IEXT_String_Range:= { hasName |-> {} } ||
-    IEXT_CancerStage_Range:= { hasStage |-> {} } ||
     ICEXT:= { 
         Thing |-> IR,         
         BenignNeoplasm |-> {}, Cancer |-> {}, LungCancer |-> {}, 
-        MalignantNeoplasm |-> {}, NSCLC |-> {}, Neoplasm |-> {neoplInst}, 
+        MalignantNeoplasm |-> {}, NSCLC |-> {}, 
+        NSCLCStage  |-> { NSCLC_stage_I, NSCLC_stage_II, NSCLC_stage_III, NSCLC_stage_IIIa, NSCLC_stage_IIIb, NSCLC_stage_IV },
+        SCLCStage  |-> {SCLC_stage_Extensive, SCLC_stage_Limited},
+        NeoplasmStage  |-> { NSCLC_stage_I, NSCLC_stage_II, NSCLC_stage_III, NSCLC_stage_IIIa, NSCLC_stage_IIIb, NSCLC_stage_IV, SCLC_stage_Extensive, SCLC_stage_Limited},
         Patient |-> {}, Person |-> {}, SCLC |-> {}  
     }
 
@@ -127,7 +127,7 @@ BEGIN
             pp: ICEXT(Patient) & tumor: ICEXT(Neoplasm) &
             (pp |-> rcrd'name): IEXT_String_Range(hasName) &
             (pp |-> tumor): IEXT(hasNeoplasm) &
-            (tumor |-> stageIIIa): IEXT_CancerStage_Range(hasStage)
+            (tumor : ICEXT(NeoplasmStage) & NSCLC_stage_IIIa : ICEXT(NeoplasmStage))
         )
     }          
 END
