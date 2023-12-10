@@ -15,7 +15,7 @@ SETS
     IP_String_Range = { hasName };    
  
     // RDFS Classes
-    IC = { Thing,        
+    IC = { Thing,
         BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, 
         NSCLC, Neoplasm, Patient, Person, SCLC, NeoplasmStage, NSCLCStage, SCLCStage
     }

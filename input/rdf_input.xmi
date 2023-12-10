@@ -145,8 +145,8 @@
         <subClassOf resource="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
         <subClassOf>
             <owlRestriction>
-                <owlonProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
-                <owlallValuesFrom resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
+                <onProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
+                <allValuesFrom resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
             </owlRestriction>
         </subClassOf>
     </owlClass>
@@ -199,8 +199,8 @@
         <subClassOf resource="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
         <subClassOf>
             <owlRestriction>
-                <owlonProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
-                <owlallValuesFrom resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
+                <onProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
+                <allValuesFrom resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
             </owlRestriction>
         </subClassOf>
     </owlClass>

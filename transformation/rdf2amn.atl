@@ -21,6 +21,10 @@ helper def: gAbstractVariables: Set(String) =
 	Set{}
 ;
 
+helper def: gClassRestriction: Map(String, Set(String)) =
+	Map{}
+;
+
 
 rule RDF2Refinement{
 	from 
@@ -51,6 +55,7 @@ rule RDF2Refinement{
 			abstractConstants <- 'IS_IP',
 			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
 			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
+			abstractConstants <- rd.owlNamedIndividual->collect(o | o.shortName),
 			properties <- conjProperties,
 			invariant <- thisModule.initAbstractVariables(rd).invariant,
 			invariant <- Sequence{inVariant},
@@ -93,7 +98,8 @@ rule RDF2Refinement{
 			predicate <- ref.abstractConstants->collect(ac | thisModule.initPropertiesIRI(ac)),
 			predicate <- ref.abstractConstants->collect(ac | thisModule.initPropertiesFIN(ac)),
 			predicate <- thisModule.initPropertiesDOM(ref.abstractConstants),
-			predicate <- thisModule.initPropertiesCardDOM(ref.abstractConstants)
+			predicate <- thisModule.initPropertiesCardDOM(ref.abstractConstants),
+			predicate <- rd.owlNamedIndividual->collect(o|thisModule.initNamedIndividualProperties(o))
 		),
 		--- INVARIANT
 		inVariant: AMN!Conjunction(
@@ -241,6 +247,32 @@ unique lazy rule initAbstractVariables{
 		rThing:	AMN!StringValue(
 			value <- 'IR'
 		)
+	do{
+		thisModule.debug('initAbstractVariables');
+		-- init class with property
+		for(class in rd.owlClass) {
+			for(subClass in class.subClassOf){
+				for (restr in subClass.owlRestriction) {
+					if(thisModule.gClassRestriction->get(restr.onProperty.shortName).oclIsUndefined()){
+						thisModule.gClassRestriction <- 
+							thisModule.gClassRestriction->including(
+								restr.onProperty.shortName,
+								Set{restr.allValuesFrom.shortName}
+							);
+					}
+					else{
+						thisModule.gClassRestriction <- 
+							thisModule.gClassRestriction->including(
+								restr.onProperty.shortName,
+								thisModule.gClassRestriction->get(restr.onProperty.shortName)->including(restr.allValuesFrom.shortName)
+							);
+					}
+				}
+			}
+		}
+		
+		thisModule.debug('gClassRestriction: ' + thisModule.gClassRestriction);
+	}
 }
 
 rule initACSet(p: SW!Property){
@@ -567,7 +599,7 @@ lazy rule initClassHierarchy{
 			expression <- Sequence{leftVar}
 		),
 		leftVar: AMN!StringValue(
-			value <- c.subClassOf.shortName	
+			value <- c.subClassOf->collect(s|s.shortName).first()
 		),
 		rightExp: AMN!FunctionalExpression(
 			sign <- 'ICEXT',
@@ -614,6 +646,7 @@ lazy rule initPropertySet{
 		}
 	}
 }
+
 
 rule initPropertyAbstractConstans(o: SW!Property){
 	using {
@@ -1054,6 +1087,22 @@ lazy rule initObjectPropertyRangeInvariant{
 			}
 		}
 	}
+}
+
+lazy rule initNamedIndividualProperties{
+	from o: SW!NamedIndividual
+	to
+		am: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- o.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	
 }
 
 helper def: isBuiltinDatatype(t: String): Boolean =
