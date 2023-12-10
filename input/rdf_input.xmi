@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>NSCLC_stage_I
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <xmi:XMI xmi:version="2.0" 
 	xmlns:xmi="http://www.omg.org/XMI"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -55,7 +55,7 @@
 
     <owlObjectProperty about="http://example.org/hospital#hasStage" shortName="hasStage">
         <domain resource="http://example.org/hospital#Neoplasm" shortName="Neoplasm"/>
-        <range resource="http://example.org/hospital#NeoplasmStage"/>
+        <range resource="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
     </owlObjectProperty>
     
 
@@ -141,12 +141,12 @@
 	<!-- http://example.org/hospital#NSCLCStage -->
 
 
-    <owlClass about="http://example.org/hospital#NSCLCStage">
-        <subClassOf resource="http://example.org/hospital#NeoplasmStage"/>
+    <owlClass about="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage">
+        <subClassOf resource="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
         <subClassOf>
             <owlRestriction>
-                <owlonProperty resource="http://example.org/hospital#hasStage"/>
-                <owlallValuesFrom resource="http://example.org/hospital#NSCLCStage"/>
+                <owlonProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
+                <owlallValuesFrom resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
             </owlRestriction>
         </subClassOf>
     </owlClass>
@@ -163,7 +163,7 @@
     <!-- http://example.org/hospital#NeoplasmStage -->
 
 
-    <owlClass about="http://example.org/hospital#NeoplasmStage"/>
+    <owlClass about="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
     
 
 
@@ -195,12 +195,12 @@
     <!-- http://example.org/hospital#SCLCStage -->
 
 
-    <owlClass about="http://example.org/hospital#SCLCStage">
-        <subClassOf resource="http://example.org/hospital#NeoplasmStage"/>
+    <owlClass about="http://example.org/hospital#SCLCStage" shortName="SCLCStage">
+        <subClassOf resource="http://example.org/hospital#NeoplasmStage" shortName="NeoplasmStage"/>
         <subClassOf>
             <owlRestriction>
-                <owlonProperty resource="http://example.org/hospital#hasStage"/>
-                <owlallValuesFrom resource="http://example.org/hospital#SCLCStage"/>
+                <owlonProperty resource="http://example.org/hospital#hasStage" shortName="hasStage"/>
+                <owlallValuesFrom resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
             </owlRestriction>
         </subClassOf>
     </owlClass>
@@ -222,8 +222,8 @@
     <!-- http://example.org/hospital#NSCLC_stage_I -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_I">
-        <type resource="http://example.org/hospital#NSCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_I" shortName="NSCLC_stage_I">
+        <type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
     </owlNamedIndividual>
     
 
@@ -231,8 +231,8 @@
     <!-- http://example.org/hospital#NSCLC_stage_II -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_II">
-        <type resource="http://example.org/hospital#NSCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_II" shortName="NSCLC_stage_II">
+        <type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
     </owlNamedIndividual>
     
 
@@ -240,8 +240,8 @@
     <!-- http://example.org/hospital#NSCLC_stage_III -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_III">
-        <type resource="http://example.org/hospital#NSCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_III" shortName="NSCLC_stage_III">
+        <type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
     </owlNamedIndividual>
     
 
@@ -249,22 +249,22 @@
     <!-- http://example.org/hospital#NSCLC_stage_IIIa -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIa"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIa" shortName="NSCLC_stage_IIIa"/>
     
 
 
     <!-- http://example.org/hospital#NSCLC_stage_IIIb -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIb"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IIIb" shortName="NSCLC_stage_IIIb"/>
     
 
 
     <!-- http://example.org/hospital#NSCLC_stage_IV -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IV">
-        <type resource="http://example.org/hospital#NSCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#NSCLC_stage_IV" shortName="NSCLC_stage_IV">
+        <type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
     </owlNamedIndividual>
     
 
@@ -272,8 +272,8 @@
     <!-- http://example.org/hospital#SCLC_stage_Extensive -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Extensive">
-        <type resource="http://example.org/hospital#SCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Extensive" shortName="SCLC_stage_Extensive">
+        <type resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
     </owlNamedIndividual>
     
 
@@ -281,8 +281,8 @@
     <!-- http://example.org/hospital#SCLC_stage_Limited -->
 
 
-    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Limited">
-        <type resource="http://example.org/hospital#SCLCStage"/>
+    <owlNamedIndividual about="http://example.org/hospital#SCLC_stage_Limited" shortName="SCLC_stage_Limited">
+        <type resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
     </owlNamedIndividual>
     
 </sw:RDFDocument>
