@@ -8,9 +8,7 @@ SEES
 SETS
 	IC = {Thing, BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, NSCLC, NSCLCStage, Neoplasm, NeoplasmStage, Patient, Person, SCLC, SCLCStage};
 	IP_string_Range = {hasName};
-	IP = {hasNeoplasm};
-	IP = {hasStage};
-	dthasStage = {stageI, stageII, stageIII, stageIIIa, stageIIIb, stageIV}
+	IP = {hasNeoplasm}
 
 DEFINITIONS
 	STRING_TYPE == seq(0..255)
@@ -49,15 +47,7 @@ PROPERTIES
 	SCLC_stage_Extensive : FIN(SCLC_stage_Extensive) &
 	SCLC_stage_Limited : FIN(SCLC_stage_Limited) &
 	IRI = dom(IS_IR) \/ dom(IS_IP) \/ dom(IS_IP_string_Range) \/ dom(NSCLC_stage_I) \/ dom(NSCLC_stage_II) \/ dom(NSCLC_stage_III) \/ dom(NSCLC_stage_IIIa) \/ dom(NSCLC_stage_IIIb) \/ dom(NSCLC_stage_IV) \/ dom(SCLC_stage_Extensive) \/ dom(SCLC_stage_Limited) &
-	card(IRI) = card(dom(IS_IR)) + card(dom(IS_IP)) + card(dom(IS_IP_string_Range)) + card(dom(NSCLC_stage_I)) + card(dom(NSCLC_stage_II)) + card(dom(NSCLC_stage_III)) + card(dom(NSCLC_stage_IIIa)) + card(dom(NSCLC_stage_IIIb)) + card(dom(NSCLC_stage_IV)) + card(dom(SCLC_stage_Extensive)) + card(dom(SCLC_stage_Limited)) &
-	NSCLC_stage_I : IR &
-	NSCLC_stage_II : IR &
-	NSCLC_stage_III : IR &
-	NSCLC_stage_IIIa : IR &
-	NSCLC_stage_IIIb : IR &
-	NSCLC_stage_IV : IR &
-	SCLC_stage_Extensive : IR &
-	SCLC_stage_Limited : IR
+	card(IRI) = card(dom(IS_IR)) + card(dom(IS_IP)) + card(dom(IS_IP_string_Range)) + card(dom(NSCLC_stage_I)) + card(dom(NSCLC_stage_II)) + card(dom(NSCLC_stage_III)) + card(dom(NSCLC_stage_IIIa)) + card(dom(NSCLC_stage_IIIb)) + card(dom(NSCLC_stage_IV)) + card(dom(SCLC_stage_Extensive)) + card(dom(SCLC_stage_Limited))
 
 ABSTRACT_VARIABLES
 	IEXT,

@@ -46,12 +46,12 @@ rule RDF2Refinement{
 			name <- refName.substring(1,1).toUpper() + refName.substring(2,refName.size()),
 			refines <- thisModule.initRefines(ctxt, ref.name),
 			sees <- ctxt,
-			sets <- classSet,
-			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o)),
-			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o)),
-			sets <- stageSet,
-			definitions <- defin,
+			-- Some init operations are in initAbstractVariables()
 			abstractVariables <- thisModule.initAbstractVariables(rd).abstractVariables,
+			sets <- classSet,
+			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o))->select(o|o.name.size() > 0),
+			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o))->select(o|o.name.size() > 0),
+			definitions <- defin,
 			abstractConstants <- 'IS_IP',
 			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
 			abstractConstants <- rd.owlObjectProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
@@ -75,11 +75,6 @@ rule RDF2Refinement{
 			name <- 'IC',
 			element <- 'Thing',
 			element <- rd.owlClass->collect(c|c.shortName)
-		),
-		--- TODO: How to get stage?
-		stageSet: AMN!SetDecl(
-			name <- 'dthasStage',
-			element <- Sequence{'stageI', 'stageII', 'stageIII', 'stageIIIa', 'stageIIIb', 'stageIV'}
 		),
 		--- DEFINITIONS
 		defin: AMN!Definition(
@@ -139,7 +134,7 @@ rule RDF2Refinement{
 	do {
 		thisModule.debug('RDF2Refinement: do!');
 		thisModule.debug(thisModule.resolveTemp(rd.sparql->first(), 'vmn'));
-		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');	
+		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');
 	}
 }
 
@@ -248,7 +243,7 @@ unique lazy rule initAbstractVariables{
 			value <- 'IR'
 		)
 	do{
-		thisModule.debug('initAbstractVariables');
+		thisModule.debug('----------initAbstractVariables-----------');
 		-- init class with property
 		for(class in rd.owlClass) {
 			for(subClass in class.subClassOf){
@@ -270,8 +265,9 @@ unique lazy rule initAbstractVariables{
 				}
 			}
 		}
-		
+
 		thisModule.debug('gClassRestriction: ' + thisModule.gClassRestriction);
+		
 	}
 }
 
@@ -626,10 +622,11 @@ lazy rule initPropertySet{
 	do {
 		thisModule.debug('initProperty');
 		--- set SETS
-		if (range.oclIsUndefined()) {
+		if (thisModule.isEnumDatatype(o.shortName)) {
 			-- enumeration datatype
-			initSet.name <- 'IP_dt' + o.shortName + '_Range';
-			thisModule.gEnumDT <- thisModule.gEnumDT->including(o.shortName);
+			-- initSet.name <- 'IP_dt' + o.shortName + '_Range';
+			-- thisModule.gEnumDT <- thisModule.gEnumDT->including(o.shortName);
+			initSet.name <- '';
 		}
 		else{
 			thisModule.debug('range:' + range.shortName);
@@ -642,8 +639,8 @@ lazy rule initPropertySet{
 				-- non built-in datatype
 				initSet.name <- 'IP';
 			}
-			thisModule.debug('initSet.name:' + initSet.name);
 		}
+		thisModule.debug('initSet.name:  ' + initSet.name);
 	}
 }
 
@@ -1111,6 +1108,14 @@ helper def: isBuiltinDatatype(t: String): Boolean =
 		true
 	else
 		false
+	endif
+; 
+
+helper def: isEnumDatatype(t: String): Boolean =
+	if thisModule.gClassRestriction->get(t).oclIsUndefined() then
+		false
+	else
+		true
 	endif
 ; 
 
