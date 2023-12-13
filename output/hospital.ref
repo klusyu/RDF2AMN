@@ -67,7 +67,13 @@ INVARIANT
 		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Patient)) &
 	!(xx , yy) . ((xx : IR) &
 		yy : IR &
-		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Neoplasm))
+		(xx |-> yy) : IEXT(hasNeoplasm) => xx : ICEXT(Neoplasm)) &
+	!(xx , yy) . ((xx : NSCLC) &
+		yy : IR &
+		(xx |-> yy) : IEXT(hasStage) => xx : ICEXT(NSCLCStage)) &
+	!(xx , yy) . ((xx : SCLC) &
+		yy : IR &
+		(xx |-> yy) : IEXT(hasStage) => xx : ICEXT(SCLCStage))
 
 INITIALISATION
 IEXT_string_Range := {hasName |-> {}}

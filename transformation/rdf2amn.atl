@@ -71,6 +71,7 @@ rule RDF2Refinement{
 			invariant <- rd.owlObjectProperty->collect(o|thisModule.initObjectPropertyInvariant(o)),
 			invariant <- rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(o | thisModule.initObjectPropertyDomainInvariant(o)),
 			invariant <- rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(o | thisModule.initObjectPropertyRangeInvariant(o)),
+			invariant <- SW!Restriction.allInstances()->collect(r | thisModule.initClassRestrictionInvariant(r)),
 			initialization <- thisModule.initAbstractVariables(rd).initialization,
 			operations <- rd.sparql->collect(s | thisModule.Sparql2Operation(s))
 			
@@ -390,6 +391,100 @@ rule initACInvariant(p: SW!Property){
 		}
 		leftInv;	
 	}
+}
+
+lazy rule initClassRestrictionInvariant{
+	from r: SW!Restriction
+	using {
+		diseaseStage: String = r.allValuesFrom.shortName;
+		disease: String = diseaseStage.regexReplaceAll('Stage', '');
+		iextName: String = '';
+		ipName: String = '';
+	}
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- '.',
+			expression <- Sequence{nXY,rightExpBrac}
+		),
+		nXY: AMN!UnaryOperator(
+			sign <- '!',
+			expression <- axy
+		),
+		axy: AMN!BinaryOperator(
+			sign <- ',',
+			expression <- Sequence{xv, yv}
+		),
+		xv: AMN!Variable(
+			name <- 'xx'	
+		),
+		yv: AMN!Variable(
+			name <- 'yy'	
+		),
+		rightExpBrac: AMN!Bracketed(
+			predicate <- rightExp
+		),
+		rightExp: AMN!Conjunction(
+			predicate <- Sequence{rxr, ryr, r3456}	
+		),
+		rxr: AMN!BinaryOperator(
+			sign <- ':',
+			expression <- Sequence{rxx, rxir}
+		),
+		rxx: AMN!Variable(
+			name <- 'xx'
+		),
+		rxir: AMN!Variable(
+			name <- disease
+		),
+		ryr: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{ryy, ryir}
+		),
+		ryy: AMN!Variable(
+			name <- 'yy'
+		),
+		ryir: AMN!Variable(
+			name <- 'IR'	
+		),
+		r3456: AMN!AtomicPredicate(
+			sign <- '=>',
+			expression <- Sequence{r34, r56}
+		),
+		r34: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r3xxyy, r4iext}
+		),
+		r3xxyy: AMN!BinaryOperator(
+			sign <- '|->',
+			expression <- Sequence{r3xx, r3yy}
+		),
+		r3xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r3yy: AMN!Variable(
+			name <- 'yy'	
+		),
+		r4iext: AMN!FunctionalExpression(
+			sign <- 'IEXT',
+			expression <- r4dn
+		),
+		r4dn: AMN!Variable(
+			name <- r.onProperty.shortName
+		),
+		r56: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{r5xx, r6icext}
+		),
+		r5xx: AMN!Variable(
+			name <- 'xx'	
+		),
+		r6icext: AMN!FunctionalExpression(
+			sign <- 'ICEXT',
+			expression <- r6dn
+		),
+		r6dn: AMN!Variable(
+			name <- diseaseStage
+		)
 }
 
 lazy rule initObjectPropertyInvariant{
