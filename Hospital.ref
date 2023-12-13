@@ -98,8 +98,13 @@ INVARIANT
         xx: ICEXT(Patient) ) &
     // hasNeoplasm range
     !(xx, yy).(xx: IR & yy: IR & (xx|->yy):IEXT(hasNeoplasm) =>
-        yy: ICEXT(Neoplasm) )
-
+        yy: ICEXT(Neoplasm) ) &
+    // hasStage range NSCLCStage
+    !(xx, yy).(xx: NSCLC & yy: IR & (xx|->yy):IEXT(hasStage) =>
+        yy: ICEXT(NSCLCStage) ) &
+    // hasStage range SCLCStage
+    !(xx, yy).(xx: SCLC & yy: IR & (xx|->yy):IEXT(hasStage) =>
+            yy: ICEXT(SCLCStage) )
 
 INITIALISATION 
 
