@@ -57,50 +57,50 @@
         <DataProperty IRI="#hasName"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-I"/>
+        <NamedIndividual IRI="#NSCLC-stage-I"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-II"/>
+        <NamedIndividual IRI="#NSCLC-stage-II"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-III"/>
+        <NamedIndividual IRI="#NSCLC-stage-III"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-IIIa"/>
+        <NamedIndividual IRI="#NSCLC-stage-IIIa"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-IIIb"/>
+        <NamedIndividual IRI="#NSCLC-stage-IIIb"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="NSCLC-stage-IV"/>
+        <NamedIndividual IRI="#NSCLC-stage-IV"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="SCLC-stage-Extensive"/>
+        <NamedIndividual IRI="#SCLC-stage-Extensive"/>
     </Declaration>
     <Declaration>
-        <NamedIndividual IRI="SCLC-stage-Limited"/>
+        <NamedIndividual IRI="#SCLC-stage-Limited"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="hasStage"/>
+        <ObjectProperty IRI="#hasStage"/>
     </Declaration>
     <Declaration>
-        <Class IRI="SCLCStage"/>
+        <Class IRI="#SCLCStage"/>
     </Declaration>
     <Declaration>
-        <Class IRI="NSCLCStage"/>
+        <Class IRI="#NSCLCStage"/>
     </Declaration>
     <SubClassOf>
-        <Class IRI="NSCLCStage"/>
+        <Class IRI="#NSCLCStage"/>
         <ObjectAllValuesFrom>
-            <ObjectProperty IRI="hasStage"/>
-            <Class IRI="NSCLCStage"/>
+            <ObjectProperty IRI="#hasStage"/>
+            <Class IRI="#NSCLCStage"/>
         </ObjectAllValuesFrom>
     </SubClassOf>
     <SubClassOf>
-        <Class IRI="SCLCStage"/>
+        <Class IRI="#SCLCStage"/>
         <ObjectAllValuesFrom>
-            <ObjectProperty IRI="hasStage"/>
-            <Class IRI="SCLCStage"/>
+            <ObjectProperty IRI="#hasStage"/>
+            <Class IRI="#SCLCStage"/>
         </ObjectAllValuesFrom>
     </SubClassOf>
     <SubClassOf>
