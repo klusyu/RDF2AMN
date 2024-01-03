@@ -81,9 +81,6 @@
         <NamedIndividual IRI="#SCLC-stage-Limited"/>
     </Declaration>
     <Declaration>
-        <ObjectProperty IRI="#hasStage"/>
-    </Declaration>
-    <Declaration>
         <Class IRI="#SCLCStage"/>
     </Declaration>
     <Declaration>
@@ -140,28 +137,28 @@
         <Class IRI="#NeoplasmStage"/>
     </SubClassOf>
     <ClassAssertion>
-        <Class IRI="NSCLCStage"/>
-        <NamedIndividual IRI="NSCLC-stage-I"/>
+        <Class IRI="#NSCLCStage"/>
+        <NamedIndividual IRI="#NSCLC-stage-I"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="NSCLCStage"/>
-        <NamedIndividual IRI="NSCLC-stage-II"/>
+        <Class IRI="#NSCLCStage"/>
+        <NamedIndividual IRI="#NSCLC-stage-II"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="NSCLCStage"/>
-        <NamedIndividual IRI="NSCLC-stage-III"/>
+        <Class IRI="#NSCLCStage"/>
+        <NamedIndividual IRI="#NSCLC-stage-III"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="NSCLCStage"/>
-        <NamedIndividual IRI="NSCLC-stage-IV"/>
+        <Class IRI="#NSCLCStage"/>
+        <NamedIndividual IRI="#NSCLC-stage-IV"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="SCLCStage"/>
-        <NamedIndividual IRI="SCLC-stage-Extensive"/>
+        <Class IRI="#SCLCStage"/>
+        <NamedIndividual IRI="#SCLC-stage-Extensive"/>
     </ClassAssertion>
     <ClassAssertion>
-        <Class IRI="SCLCStage"/>
-        <NamedIndividual IRI="SCLC-stage-Limited"/>
+        <Class IRI="#SCLCStage"/>
+        <NamedIndividual IRI="#SCLC-stage-Limited"/>
     </ClassAssertion>
     <ObjectPropertyDomain>
         <ObjectProperty IRI="#hasNeoplasm"/>

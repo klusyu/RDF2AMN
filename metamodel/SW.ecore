@@ -11,7 +11,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="owlOntology" ordered="false"
         upperBound="-1" eType="#//OWL/Ontology" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="owlClass" ordered="false"
-        upperBound="-1" eType="#//RDFS/Class" containment="true"/>
+        upperBound="-1" eType="#//OWL/OWLClass" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owlNamedIndividual" upperBound="-1"
+        eType="#//OWL/NamedIndividual" containment="true"/>
   </eClassifiers>
   <eSubpackages name="RDF" nsURI="http://www.w3.org/1999/02/22-rdf-syntax-ns#" nsPrefix="RDF">
     <eClassifiers xsi:type="ecore:EClass" name="Property" eSuperTypes="#//RDFS/Resource">
@@ -31,9 +33,7 @@
   </eSubpackages>
   <eSubpackages name="RDFS" nsURI="https://www.w3.org/2000/01/rdf-schema#" nsPrefix="RDFS">
     <eClassifiers xsi:type="ecore:EClass" name="DataType" eSuperTypes="#//RDFS/Class"/>
-    <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//RDFS/Resource">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="subClassOf" eType="#//RDFS/Class"/>
-    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//RDFS/Resource"/>
     <eClassifiers xsi:type="ecore:EClass" name="Resource">
       <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//RDFS/Class"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="comment" eType="#//RDFS/Literal"/>
@@ -51,7 +51,12 @@
     <eClassifiers xsi:type="ecore:EClass" name="ContainerMembershipProperty" eSuperTypes="#//RDF/Property"/>
   </eSubpackages>
   <eSubpackages name="OWL" nsURI="https://www.w3.org/2002/07/owl#" nsPrefix="OWL">
-    <eClassifiers xsi:type="ecore:EClass" name="OWLClass" abstract="true" eSuperTypes="#//RDFS/Class"/>
+    <eClassifiers xsi:type="ecore:EClass" name="OWLClass" eSuperTypes="#//RDFS/Class">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="owlRestriction" upperBound="-1"
+          eType="#//OWL/Restriction" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="subClassOf" upperBound="-1"
+          eType="#//OWL/OWLClass" containment="true"/>
+    </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Ontology" eSuperTypes="#//RDFS/Resource"/>
     <eClassifiers xsi:type="ecore:EClass" name="OntologyProperty" eSuperTypes="#//RDF/Property"/>
     <eClassifiers xsi:type="ecore:EClass" name="DatatypeProperty" eSuperTypes="#//RDF/Property"/>

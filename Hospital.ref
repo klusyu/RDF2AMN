@@ -1,0 +1,141 @@
+/* CancerRef
+ * Author: ssa
+ * Creation date: 5/25/2022
+ */
+
+REFINEMENT Hospital
+REFINES HospitalAM
+
+SEES ContextRDF
+
+SETS
+
+    // Properties  
+    IP = { hasNeoplasm };
+    IP_String_Range = { hasName };    
+ 
+    // RDFS Classes
+    IC = { Thing,
+        BenignNeoplasm, Cancer, LungCancer, MalignantNeoplasm, 
+        NSCLC, Neoplasm, Patient, Person, SCLC, NeoplasmStage, NSCLCStage, SCLCStage
+    }
+
+
+DEFINITIONS
+    STRING_TYPE == seq(0..255)
+
+ABSTRACT_CONSTANTS 
+    
+    IS_IP, // IRIs for Properties 
+    IS_IP_String_Range, // IRI for String range properties 
+    
+    NSCLC_stage_I, 
+    NSCLC_stage_II, 
+    NSCLC_stage_III, 
+    NSCLC_stage_IIIa, 
+    NSCLC_stage_IIIb, 
+    NSCLC_stage_IV, 
+    SCLC_stage_Extensive, 
+    SCLC_stage_Limited
+
+PROPERTIES
+  
+    IS_IP: IRI +-> IP & 
+    IS_IP: FIN(IS_IP) &
+    IS_IP_String_Range: IRI +-> IP_String_Range &
+    IS_IP_String_Range: FIN(IS_IP_String_Range) &
+    
+    // Valid for finite interpretations
+    IRI = dom(IS_IR) \/ 
+        dom(IS_IP) \/ dom(IS_IP_String_Range) \/       
+        dom(IL_String)&
+    
+    card(IRI) = card(dom(IS_IR)) + card(dom(IS_IP)) + 
+        card(dom(IS_IP_String_Range)) +
+        card(dom(IL_String)) &
+    
+    NSCLC_stage_I: IR &
+    NSCLC_stage_II: IR &
+    NSCLC_stage_III: IR &
+    NSCLC_stage_IIIa: IR &
+    NSCLC_stage_IIIb: IR &
+    NSCLC_stage_IV: IR &
+    SCLC_stage_Extensive: IR &
+    SCLC_stage_Limited: IR
+    
+ABSTRACT_VARIABLES
+        
+    IEXT, // Properties Interpretation
+    IEXT_String_Range, // Interpretation for properties with string range
+    ICEXT // Classes Interpretation
+
+INVARIANT
+    
+    IEXT: IP --> POW(IR*IR) &
+    IEXT_String_Range: IP_String_Range --> POW(IR*STRING_TYPE) &
+    
+    ICEXT: IC --> POW(IR) &
+    
+    // Required by  personIRI and neoplasmIRI IRI constructors 
+    card(ICEXT(Patient)) <= NN &
+    card(ICEXT(Neoplasm)) <= NN &
+        
+    // OWL Class in a subclass of Thing.
+    // Required only for class with no superclasses
+    ICEXT(Thing) = IR &
+    
+    // SubClassOf 
+    ICEXT(BenignNeoplasm) <: ICEXT(Neoplasm) &
+    ICEXT(MalignantNeoplasm) <: ICEXT(Neoplasm) &
+    ICEXT(Cancer) <: ICEXT(MalignantNeoplasm) &    
+    ICEXT(LungCancer) <: ICEXT(Cancer) &    
+    ICEXT(NSCLC) <: ICEXT(LungCancer) &        
+    ICEXT(SCLC) <: ICEXT(LungCancer) &   
+    ICEXT(Patient) <: ICEXT(Person) &       
+    
+    // hasNeoplasm domain 
+    !(xx, yy).(xx: IR & yy: IR & (xx|->yy):IEXT(hasNeoplasm) =>
+        xx: ICEXT(Patient) ) &
+    // hasNeoplasm range
+    !(xx, yy).(xx: IR & yy: IR & (xx|->yy):IEXT(hasNeoplasm) =>
+        yy: ICEXT(Neoplasm) ) &
+    // hasStage range NSCLCStage
+    !(xx, yy).(xx: NSCLC & yy: IR & (xx|->yy):IEXT(hasStage) =>
+        yy: ICEXT(NSCLCStage) ) &
+    // hasStage range SCLCStage
+    !(xx, yy).(xx: SCLC & yy: IR & (xx|->yy):IEXT(hasStage) =>
+            yy: ICEXT(SCLCStage) )
+
+INITIALISATION 
+
+    IEXT:= { hasNeoplasm |-> {} } ||
+    IEXT_String_Range:= { hasName |-> {} } ||
+    ICEXT:= { 
+        Thing |-> IR,         
+        BenignNeoplasm |-> {}, Cancer |-> {}, LungCancer |-> {}, 
+        MalignantNeoplasm |-> {}, NSCLC |-> {}, 
+        NSCLCStage  |-> { NSCLC_stage_I, NSCLC_stage_II, NSCLC_stage_III, NSCLC_stage_IIIa, NSCLC_stage_IIIb, NSCLC_stage_IV },
+        SCLCStage  |-> {SCLC_stage_Extensive, SCLC_stage_Limited},
+        NeoplasmStage  |-> { NSCLC_stage_I, NSCLC_stage_II, NSCLC_stage_III, NSCLC_stage_IIIa, NSCLC_stage_IIIb, NSCLC_stage_IV, SCLC_stage_Extensive, SCLC_stage_Limited},
+        Patient |-> {}, Person |-> {}, SCLC |-> {}  
+    }
+
+
+OPERATIONS
+    
+res <--  patientsWithTumorOfStageIIIa =
+BEGIN
+    res:= 
+    { rcrd | 
+        rcrd: struct(name: STRING_TYPE)  &
+        #(pp, tumor).(
+            pp: ICEXT(Patient) & tumor: ICEXT(Neoplasm) &
+            (pp |-> rcrd'name): IEXT_String_Range(hasName) &
+            (pp |-> tumor): IEXT(hasNeoplasm) &
+            (tumor : ICEXT(NeoplasmStage) & NSCLC_stage_IIIa : ICEXT(NeoplasmStage))
+        )
+    }          
+END
+
+
+END
