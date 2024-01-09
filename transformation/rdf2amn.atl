@@ -59,7 +59,7 @@ rule RDF2Refinement{
 			abstractVariables <- thisModule.initAbstractVariables(rd).abstractVariables,
 			sets <- classSet,
 			sets <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertySet(o))->select(o|o.name.size() > 0),
-			sets <- rd.owlObjectProperty->collect(o | thisModule.initPropertySet(o))->select(o|o.name.size() > 0),
+			sets <- thisModule.initObjectPropertySet(rd),
 			definitions <- defin,
 			abstractConstants <- 'IS_IP',
 			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.initPropertyAbstractConstans(o))->select(o|o.size() > 0),
@@ -434,7 +434,7 @@ lazy rule initClassRestrictionInvariant{
 			name <- 'xx'
 		),
 		rxir: AMN!Variable(
-			name <- disease
+			name <- 'IR'
 		),
 		ryr: AMN!AtomicPredicate(
 			sign <- ':',
@@ -764,7 +764,21 @@ lazy rule initClassHierarchy{
 		)
 }
 
---- Init ObjectProperty and DatatypeProperty
+--- Init ObjectProperty
+lazy rule initObjectPropertySet{
+	from rd: sw!RDFDocument
+	using {
+		setName: String = 'IP';
+	}
+	to
+		--- SETS
+		initSet: AMN!SetDecl(
+			name <- 'IP',
+			element <- rd.owlObjectProperty->collect(o|o.shortName)	
+		)
+}
+
+--- Init DatatypeProperty
 lazy rule initPropertySet{
 	from o: SW!Property
 	using {
@@ -780,24 +794,18 @@ lazy rule initPropertySet{
 	do {
 		thisModule.debug('initProperty');
 		--- set SETS
-		if (thisModule.isEnumDatatype(o.shortName)) {
-			-- enumeration datatype
-			-- initSet.name <- 'IP_dt' + o.shortName + '_Range';
-			-- thisModule.gEnumDT <- thisModule.gEnumDT->including(o.shortName);
-			initSet.name <- '';
+
+		thisModule.debug('range:' + range.shortName);
+		if (thisModule.isBuiltinDatatype(range.shortName)) {
+			-- built-in datatype
+			initSet.name <- 'IP_' + range.shortName + '_Range';
+			thisModule.gBuiltinDT <- thisModule.gBuiltinDT->including(range.shortName);
 		}
-		else{
-			thisModule.debug('range:' + range.shortName);
-			if (thisModule.isBuiltinDatatype(range.shortName)) {
-				-- built-in datatype
-				initSet.name <- 'IP_' + range.shortName + '_Range';
-				thisModule.gBuiltinDT <- thisModule.gBuiltinDT->including(range.shortName);
-			}
-			else {
-				-- non built-in datatype
-				initSet.name <- 'IP';
-			}
+		else {
+			-- non built-in datatype
+			initSet.name <- 'IP';
 		}
+	
 		thisModule.debug('initSet.name:  ' + initSet.name);
 	}
 }

@@ -19,7 +19,7 @@
 				<patterns subject="p" predicate="hasName" object="name"/>
 				<patterns subject="p" predicate="hasNeoplasm" object="tumor"/>
 				<patterns subject="tumor" predicate="a" object="Neoplasm"/>
-				<patterns subject="tumor" predicate="hasStage" object="stage-IIIa"/>
+				<patterns subject="tumor" predicate="hasStage" object="NSCLC_stage_IIIa"/>
 			</where>
 		</select>
 	</sparql>
@@ -110,42 +110,42 @@
 	</owlClass>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-I" shortName="NSCLC-stage-I">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-I" shortName="NSCLC_stage_I">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-II" shortName="NSCLC-stage-II">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-II" shortName="NSCLC_stage_II">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-III" shortName="NSCLC-stage-III">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-III" shortName="NSCLC_stage_III">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIa" shortName="NSCLC-stage-IIIa">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIa" shortName="NSCLC_stage_IIIa">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIb" shortName="NSCLC-stage-IIIb">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IIIb" shortName="NSCLC_stage_IIIb">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IV" shortName="NSCLC-stage-IV">
+	<owlNamedIndividual about="http://example.org/hospital#NSCLC-stage-IV" shortName="NSCLC_stage_IV">
 		<type resource="http://example.org/hospital#NSCLCStage" shortName="NSCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Extensive" shortName="SCLC-stage-Extensive">
+	<owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Extensive" shortName="SCLC_stage_Extensive">
 		<type resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
 	</owlNamedIndividual>
 	
 	
-	<owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Limited" shortName="SCLC-stage-Limited">
+	<owlNamedIndividual about="http://example.org/hospital#SCLC-stage-Limited" shortName="SCLC_stage_Limited">
 		<type resource="http://example.org/hospital#SCLCStage" shortName="SCLCStage"/>
 	</owlNamedIndividual>
 	
