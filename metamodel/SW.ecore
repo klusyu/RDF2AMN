@@ -14,37 +14,107 @@
         upperBound="-1" eType="#//OWL/OWLClass" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="owlNamedIndividual" upperBound="-1"
         eType="#//OWL/NamedIndividual" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="statement" upperBound="-1"
+        eType="#//RDF/Statement" containment="true"/>
   </eClassifiers>
   <eSubpackages name="RDF" nsURI="http://www.w3.org/1999/02/22-rdf-syntax-ns#" nsPrefix="RDF">
     <eClassifiers xsi:type="ecore:EClass" name="Property" eSuperTypes="#//RDFS/Resource">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="domain" eType="#//RDFS/Class"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="range" eType="#//RDFS/Class"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="domain" eType="#//RDFS/Class"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="range" eType="#//RDFS/Class"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="subPropertyOf" eType="#//RDF/Property"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="equivalentProperty" eType="#//RDF/Property"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="propertyDisjointWith"
+          eType="#//RDF/Property" containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Statement" eSuperTypes="#//RDFS/Resource">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="subject" eType="#//RDFS/Resource"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="predicate" eType="#//RDFS/Resource"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="object" eType="#//RDFS/Resource"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="subject" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="predicate" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="object" eType="#//RDFS/Resource"
+          containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Bag" eSuperTypes="#//RDFS/Container"/>
     <eClassifiers xsi:type="ecore:EClass" name="Seq" eSuperTypes="#//RDFS/Container"/>
     <eClassifiers xsi:type="ecore:EClass" name="Alt" eSuperTypes="#//RDFS/Container"/>
-    <eClassifiers xsi:type="ecore:EClass" name="List" eSuperTypes="#//RDFS/Resource"/>
-    <eClassifiers xsi:type="ecore:EClass" name="CompoundLiteral" eSuperTypes="#//RDFS/Class"/>
+    <eClassifiers xsi:type="ecore:EClass" name="List" eSuperTypes="#//RDFS/Resource">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="first" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="rest" eType="#//RDF/List"
+          containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="CompoundLiteral" eSuperTypes="#//RDFS/Class">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="language" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="direction" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="langString" instanceTypeName="DataType"
+        eSuperTypes="#//RDFS/Literal"/>
+    <eClassifiers xsi:type="ecore:EClass" name="HTML" instanceTypeName="DataType"
+        eSuperTypes="#//RDFS/Literal"/>
+    <eClassifiers xsi:type="ecore:EClass" name="PlainLiteral" instanceTypeName="DataType"
+        eSuperTypes="#//RDFS/Literal"/>
+    <eClassifiers xsi:type="ecore:EClass" name="nil" instanceTypeName="List"/>
+    <eClassifiers xsi:type="ecore:EClass" name="XMLLiteral" instanceTypeName="DataType"
+        eSuperTypes="#//RDFS/Literal"/>
+    <eClassifiers xsi:type="ecore:EClass" name="JSON" instanceTypeName="DataType"
+        eSuperTypes="#//RDFS/Literal"/>
   </eSubpackages>
   <eSubpackages name="RDFS" nsURI="https://www.w3.org/2000/01/rdf-schema#" nsPrefix="RDFS">
-    <eClassifiers xsi:type="ecore:EClass" name="DataType" eSuperTypes="#//RDFS/Class"/>
-    <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DataType" eSuperTypes="#//RDFS/Class">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="datatypeComplementOf"
+          eType="#//RDFS/DataType" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="onDatatype" eType="#//RDFS/DataType"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="withRestrictions" eType="#//RDF/List"
+          containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Class" eSuperTypes="#//RDFS/Resource">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="rdfsSubClassOf" eType="#//RDFS/Class"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="equivalentClass" eType="#//RDFS/Class"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="hasKey" eType="#//RDF/List"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="intersectionOf" eType="#//RDF/List"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="oneOf" eType="#//RDF/List"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="unionOf" eType="#//RDF/List"/>
+    </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Resource">
-      <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//RDFS/Class"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="comment" eType="#//RDFS/Literal"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//RDFS/Resource"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="seeAlso" eType="#//RDFS/Resource"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//RDFS/Class"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="comment" eType="#//RDFS/Literal"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="label" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="seeAlso" eType="#//RDFS/Resource"
+          containment="true"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="isDefinedBy" eType="#//RDFS/Resource"
-          derived="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//RDFS/Resource"/>
+          derived="true" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="value" eType="#//RDFS/Resource"
+          containment="true"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="resource" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="about" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="shortName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="member" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="annotatedProperty" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="annotatedSource" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="annotatedTarget" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="deprecated" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="members" eType="#//RDF/List"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="versionInfo" eType="#//RDFS/Resource"
+          containment="true"/>
     </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="Literal" eSuperTypes="#//RDFS/Resource"/>
     <eClassifiers xsi:type="ecore:EClass" name="Container" eSuperTypes="#//RDFS/Resource"/>
@@ -54,21 +124,107 @@
     <eClassifiers xsi:type="ecore:EClass" name="OWLClass" eSuperTypes="#//RDFS/Class">
       <eStructuralFeatures xsi:type="ecore:EReference" name="owlRestriction" upperBound="-1"
           eType="#//OWL/Restriction" containment="true"/>
-      <eStructuralFeatures xsi:type="ecore:EReference" name="subClassOf" upperBound="-1"
+      <eStructuralFeatures xsi:type="ecore:EReference" name="owlSubClassOf" upperBound="-1"
           eType="#//OWL/OWLClass" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="complementOf" eType="#//OWL/OWLClass"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="disjointUnionOf" eType="#//RDF/List"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="disjointWith" eType="#//OWL/OWLClass"
+          containment="true"/>
     </eClassifiers>
-    <eClassifiers xsi:type="ecore:EClass" name="Ontology" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="Ontology" eSuperTypes="#//RDFS/Resource">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="backwardCompatibleWith"
+          eType="#//OWL/Ontology" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="imports" eType="#//OWL/Ontology"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="incompatibleWith" eType="#//OWL/Ontology"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="priorVersion" eType="#//OWL/Ontology"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="versionIRI" eType="#//OWL/Ontology"
+          containment="true"/>
+    </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="OntologyProperty" eSuperTypes="#//RDF/Property"/>
     <eClassifiers xsi:type="ecore:EClass" name="DatatypeProperty" eSuperTypes="#//RDF/Property"/>
-    <eClassifiers xsi:type="ecore:EClass" name="ObjectProperty" eSuperTypes="#//RDF/Property"/>
+    <eClassifiers xsi:type="ecore:EClass" name="ObjectProperty" eSuperTypes="#//RDF/Property">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="inverseOf" eType="#//OWL/ObjectProperty"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="propertyChainAxiom" eType="#//RDF/List"
+          containment="true"/>
+    </eClassifiers>
     <eClassifiers xsi:type="ecore:EClass" name="NamedIndividual" eSuperTypes="#//OWL/Thing"/>
     <eClassifiers xsi:type="ecore:EClass" name="Restriction" eSuperTypes="#//OWL/OWLClass">
       <eStructuralFeatures xsi:type="ecore:EReference" name="allValuesFrom" eType="#//RDFS/Class"
           containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="cardinality" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="hasSelf" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="hasValue" eType="#//RDFS/Resource"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxCardinality" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxQualifiedCardinality"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="minCardinality" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="minQualifiedCardinality"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="onClass" eType="#//OWL/OWLClass"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="onDataRange" eType="#//RDFS/DataType"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="onProperties" eType="#//RDF/List"
+          containment="true"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="onProperty" eType="#//RDF/Property"
           containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="qualifiedCardinality"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="someValuesFrom" eType="#//RDFS/Class"
+          containment="true"/>
     </eClassifiers>
-    <eClassifiers xsi:type="ecore:EClass" name="Thing" abstract="true" eSuperTypes="#//OWL/OWLClass"/>
+    <eClassifiers xsi:type="ecore:EClass" name="Thing" abstract="true" eSuperTypes="#//OWL/OWLClass">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="bottomDataProperty" eType="#//RDFS/Literal"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="bottomObjectProperty"
+          eType="#//OWL/Thing" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="differentFrom" eType="#//OWL/Thing"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="sameAs" eType="#//OWL/Thing"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="topDataProperty" eType="#//RDFS/Literal"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="topObjectProperty" eType="#//OWL/Thing"
+          containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="AllDifferent" eSuperTypes="#//RDFS/Resource">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="distinctMembers" eType="#//RDF/List"
+          containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="AllDisjointClasses" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="AllDisjointProperties" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="Annotation" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="AnnotationProperty" eSuperTypes="#//RDF/Property"/>
+    <eClassifiers xsi:type="ecore:EClass" name="AsymmetricProperty" eSuperTypes="#//OWL/ObjectProperty"/>
+    <eClassifiers xsi:type="ecore:EClass" name="Axiom" eSuperTypes="#//RDFS/Resource"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DataRange" eSuperTypes="#//RDFS/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DeprecatedClass" eSuperTypes="#//RDFS/Class"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DeprecatedProperty" eSuperTypes="#//RDF/Property"/>
+    <eClassifiers xsi:type="ecore:EClass" name="FunctionalProperty" eSuperTypes="#//RDF/Property"/>
+    <eClassifiers xsi:type="ecore:EClass" name="InverseFunctionalProperty" eSuperTypes="#//OWL/ObjectProperty"/>
+    <eClassifiers xsi:type="ecore:EClass" name="IrreflexiveProperty" eSuperTypes="#//OWL/ObjectProperty"/>
+    <eClassifiers xsi:type="ecore:EClass" name="NegativePropertyAssertion" eSuperTypes="#//RDFS/Resource">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="assertionProperty" eType="#//RDF/Property"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="sourceIndividual" eType="#//OWL/Thing"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="targetIndividual" eType="#//OWL/Thing"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="targetValue" eType="#//RDFS/Literal"
+          containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Nothing" eSuperTypes="#//OWL/Thing"/>
+    <eClassifiers xsi:type="ecore:EClass" name="ReflexiveProperty" eSuperTypes="#//OWL/ObjectProperty"/>
+    <eClassifiers xsi:type="ecore:EClass" name="SymmetricProperty" eSuperTypes="#//OWL/ObjectProperty"/>
+    <eClassifiers xsi:type="ecore:EClass" name="TransitiveProperty" eSuperTypes="#//OWL/ObjectProperty"/>
   </eSubpackages>
   <eSubpackages name="SPARQL" nsURI="https://www.w3.org/TR/sparql11-query/" nsPrefix="sparql">
     <eClassifiers xsi:type="ecore:EClass" name="Select">
