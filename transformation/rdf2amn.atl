@@ -34,6 +34,7 @@ helper def: gClassRestriction: Map(String, OrderedSet(String)) =
 ;
 
 
+
 rule RDF2Refinement{
 	from 
 		rd: SW!RDFDocument
@@ -141,8 +142,104 @@ rule RDF2Refinement{
 		--- Initialization
 	do {
 		thisModule.debug('RDF2Refinement: do!');
-		thisModule.debug(thisModule.resolveTemp(rd.sparql->first(), 'vmn'));
 		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');
+	}
+}
+
+
+rule Ontology2Predicate {
+	from
+		ni: SW!NamedIndividual
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- ni.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	do{
+		thisModule.debug('OWLClass2Predicate');
+	}
+}
+
+rule OWLCLass2Predicate {
+	from
+		ni: SW!NamedIndividual
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- ni.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	do{
+		thisModule.debug('OWLClass2Predicate');
+	}
+}
+
+
+rule NamedIndividual2Predicate {
+	from
+		ni: SW!NamedIndividual
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- ni.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	do{
+		thisModule.debug('OWLClass2Predicate');
+	}
+}
+
+rule DatatypeProperty2Predicate {
+	from
+		ni: SW!DatatypeProperty
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- ni.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	do{
+		thisModule.debug('OWLClass2Predicate');
+	}
+}
+
+rule ObjectProperty2Predicate {
+	from
+		ni: SW!ObjectProperty
+	to
+		ap: AMN!AtomicPredicate(
+			sign <- ':',
+			expression <- Sequence{lexp, rexp}
+		),
+		lexp: AMN!NamedConstant(
+			name <- ni.shortName
+		),
+		rexp: AMN!NamedConstant(
+			name <- 'IR'	
+		)
+	do{
+		thisModule.debug('OWLClass2Predicate');
 	}
 }
 
