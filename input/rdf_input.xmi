@@ -10,8 +10,8 @@
 	xmlns:sw="https://www.w3.org/2001/sw/">
 	
 	<sparql>
-		<prefix name="inst" iri="http://example.org/hospital/instances/"/>
-		<prefix name="" iri="http://example.org/hospital#"/>
+		<prefix name="inst" uri="http://example.org/hospital/instances/"/>
+		<prefix name="" uri="http://example.org/hospital#"/>
 		<select>
 			<variables name="name"/>
 			<where>

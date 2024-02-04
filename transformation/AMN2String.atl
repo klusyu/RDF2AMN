@@ -149,7 +149,7 @@ helper context AMN!Refinement def: toString() : String =
 	if self.abstractVariables->size() > 0 
 	then 
 		'\n\nABSTRACT_VARIABLES\n' + 
-		( let s: String = self.abstractVariables->iterate(i; acc : String = '\t' | acc + i + ',\n\t') in s.substring(1, s.size()-3) )
+		( let s: String = self.abstractVariables->iterate(i; acc : String = '\t' | acc + i.toString(',\n\t') + '\n\t') in s.substring(1, s.size()-3) )
 	else '' 
 	endif +
 	
@@ -399,6 +399,16 @@ helper context AMN!FunctionalExpression def: toString(indent: String) : String =
 
 helper context AMN!Variable def: toString(indent: String) : String =
 	self.name
+;
+
+helper context AMN!Variables def: toString(indent: String) : String =
+	if self.name->size() > 0 
+	then 
+		let s: String = self.name->iterate(i; acc : String = '' | acc + i + indent) in
+			s.substring(1, s.size()-1)
+	else 
+		'EMPTY_NAME'
+	endif
 ;
 
 helper context AMN!BooleanValue def: toString(indent: String) : String =

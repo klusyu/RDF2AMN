@@ -147,7 +147,7 @@
       <eStructuralFeatures xsi:type="ecore:EReference" name="propertyChainAxiom" eType="#//RDF/List"
           containment="true"/>
     </eClassifiers>
-    <eClassifiers xsi:type="ecore:EClass" name="NamedIndividual" eSuperTypes="#//OWL/Thing"/>
+    <eClassifiers xsi:type="ecore:EClass" name="NamedIndividual" eSuperTypes="#//OWL/Thing #//OWL/OWLClass"/>
     <eClassifiers xsi:type="ecore:EClass" name="Restriction" eSuperTypes="#//OWL/OWLClass">
       <eStructuralFeatures xsi:type="ecore:EReference" name="allValuesFrom" eType="#//OWL/OWLClass"
           containment="true"/>
@@ -175,7 +175,7 @@
       <eStructuralFeatures xsi:type="ecore:EReference" name="someValuesFrom" eType="#//OWL/OWLClass"
           containment="true"/>
     </eClassifiers>
-    <eClassifiers xsi:type="ecore:EClass" name="Thing" abstract="true" eSuperTypes="#//OWL/OWLClass">
+    <eClassifiers xsi:type="ecore:EClass" name="Thing" abstract="true">
       <eStructuralFeatures xsi:type="ecore:EReference" name="bottomDataProperty" eType="#//RDFS/Literal"
           containment="true"/>
       <eStructuralFeatures xsi:type="ecore:EReference" name="bottomObjectProperty"

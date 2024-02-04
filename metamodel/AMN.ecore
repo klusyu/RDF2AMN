@@ -37,8 +37,8 @@
         eType="#//AbstractMachine"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="abstractConstants" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="abstractVariables" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="abstractVariables" upperBound="-1"
+        eType="#//AMNExpression/Variables"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Refinement" eSuperTypes="#//Machine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="refines" eType="#//Machine"/>
@@ -46,8 +46,8 @@
         eType="#//AbstractMachine"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="abstractConstants" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="abstractVariables" upperBound="-1"
-        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="abstractVariables" upperBound="-1"
+        eType="#//AMNExpression/Variables"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Implementation" eSuperTypes="#//Machine">
     <eStructuralFeatures xsi:type="ecore:EReference" name="imports" upperBound="-1"
@@ -190,6 +190,10 @@
           eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="field" lowerBound="1"
           upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Variables" eSuperTypes="#//AMNExpression/Expression">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" upperBound="-1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     </eClassifiers>
   </eSubpackages>
   <eSubpackages name="AMNSubstitution" nsURI="http://synthesis.ipi.ac.ru/amn/substitution"
