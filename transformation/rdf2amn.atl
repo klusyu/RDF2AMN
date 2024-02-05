@@ -102,7 +102,7 @@ rule initAMNProperties(rd: SW!RDFDocument, abstractConstants: Sequence(String)) 
 			predicate <- abstractConstants->select(n|not thisModule.isInstance(n))->collect(ac | thisModule.initPropertiesFIN(ac)),
 			predicate <- thisModule.initPropertiesDOM(abstractConstants->select(a|not thisModule.isInstance(a))),
 			predicate <- thisModule.initPropertiesCardDOM(abstractConstants->select(a|not thisModule.isInstance(a))),
-			predicate <- rd.owlNamedIndividual->collect(o|thisModule.initNamedIndividualProperties(o))
+			predicate <- rd.owlNamedIndividual->collect(o|thisModule.namedIndividual2Property(o))
 		)
 	do{
 		conjProperties;
@@ -311,16 +311,16 @@ rule DatatypeProperty2Predicate {
 	to
 	-- SETS range --
 		range_set: AMN!SetDecl(
-			name <- 'IP_' + dp.range.shortName + '_Range',
+			name <- thisModule.IP_name_Range(dp.range.shortName),
 			element <- Sequence{dp.shortName}	
 		),
 	-- ABSTRACT_CONSTANS --
 		range_ac: AMN!NamedConstant(
-			name <- 'IS_IP_' +	dp.range.shortName + '_Range'
+			name <- thisModule.ISIP_name_Range(dp.range.shortName)
 		),
 	-- ABSTRACT_VARIABLES --
 		range_av: AMN!Variable(
-			name <- 'IEXT_' + dp.range.shortName + '_Range'
+			name <- thisModule.IEXT_name_Range(dp.range.shortName)
 		)
 	do{
 		thisModule.debug('DatatypeProperty2Predicate');
@@ -388,7 +388,7 @@ rule Sparql2Operations{
 	}
 	to 
 		op: AMN!Operation(
-		name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
+		name <- 'patientsWithTumorOfStageIIIa',
 		outputParams <- res,
 		substitution <-block
 		),
@@ -1102,7 +1102,7 @@ rule createDomainRangeInvariant(propertyName: String, target: String){
 	}
 }
 
-lazy rule initNamedIndividualProperties{
+lazy rule namedIndividual2Property{
 	from o: SW!NamedIndividual
 	to
 		am: AMN!AtomicPredicate(
@@ -1126,31 +1126,23 @@ helper def: IEXT_name_Range(name: String): String =
 	'IEXT_' +	name + '_Range'
 ;
 
+helper def: IP_name_Range(name: String): String = 
+	'IP_' +	name + '_Range'
+;
+
 helper def: refinementName(name: String): String = 
 	name.substring(1,1).toUpper() + name.substring(2,name.size())
 ;
 
 helper def: isBuiltinDatatype(t: String): Boolean =
 	let builtinTypes: Set(String) = Set{'string', 'real', 'bool'} in
-	if builtinTypes.includes(t) then
-		true
-	else
-		false
-	endif
+	builtinTypes.includes(t)
 ; 
 
 helper def: isEnumDatatype(t: String): Boolean =
-	if thisModule.gClassRestriction->get(t).oclIsUndefined() then
-		false
-	else
-		true
-	endif
+	not thisModule.gClassRestriction->get(t).oclIsUndefined()
 ; 
 
 helper def: isInstance(n: String): Boolean = 
-	if thisModule.gNamedIndividual->includes(n) then
-		true
-	else
-		false
-	endif
+	thisModule.gNamedIndividual->includes(n)
 ;
