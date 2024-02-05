@@ -24,12 +24,6 @@ rule RDF2Refinement{
 	from 
 		rd: SW!RDFDocument
 	using {
-		sos : Set(AMN!Operation) = Set{};
-		avs: String = 'ICEXT';
-		iext: String = 'IEXT';
-		objectProperties: Set(SW!ObjectProperty) = rd.owlObjectProperty;
-		datatypeProperties: Set(SW!DatatypeProperty) = rd.owlDatatypeProperty;
-		properties: Set(SW!Property) = rd.owlDatatypeProperty.union(rd.owlObjectProperty);
 		refName:String = rd.owlOntology->collect(c|c.shortName).first();
 	}
 	to 
@@ -37,40 +31,46 @@ rule RDF2Refinement{
 		ctxt: AMN!AbstractMachine(
 			name <- 'ContextRDF'
 		),
+		--- REFINEMENT
 		ref: AMN!Refinement(
-			name <- refName.substring(1,1).toUpper() + refName.substring(2,refName.size()),
-			refines <- thisModule.initRefines(ctxt, ref.name, rd),
+			name <- thisModule.refinementName(refName),
+			refines <- thisModule.initAMNRefines(ctxt, ref.name, rd),
 			sees <- ctxt,
-			abstractVariables <- abstVariables,
-			sets <- classSet,
-			sets <- rd.owlDatatypeProperty->collect(o | thisModule.resolveTemp(o, 'range_set')),
-			sets <- thisModule.initObjectPropertySet(rd),
-			definitions <- defin,
-			abstractConstants <- 'IS_IP',
-			abstractConstants <- rd.owlDatatypeProperty->collect(o | thisModule.DatatypeProperty2AC(o)),
-			abstractConstants <- rd.owlNamedIndividual->collect(o | o.shortName),
-			properties <- conjProperties,
-			-- invariant <- 
-			invariant <- inVariant,
-			invariant <- rd.owlObjectProperty->collect(o|thisModule.resolveTemp(o, 'inv_card')),
-			invariant <- rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(c|thisModule.resolveTemp(c, 'domain_rel')),
-			invariant <- rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(c|thisModule.resolveTemp(c, 'range_rel')),
-			
-			invariant <- SW!Restriction.allInstances()->collect(r | thisModule.initClassRestrictionInvariant(r)),
-			initialization <- properties->select(p|not thisModule.isEnumDatatype(p.shortName))->collect(p|thisModule.initACSet(p)),
-			initialization <- icextInit,
+			sets <- thisModule.initAMNSets(rd),
+			definitions <- thisModule.initAMNDefinitions(),
+			abstractConstants <- thisModule.initAMNAbstractConstants(rd),
+			properties <- thisModule.initAMNProperties(rd, ref.abstractConstants),
+			abstractVariables <- thisModule.initAMNAbstractVariables(rd),
+			invariant <- thisModule.initAMNInvariant(rd, ref.abstractVariables),
+			initialization <- thisModule.initAMNInitialisation(rd),
 			operations <- rd.sparql->collect(s | thisModule.resolveTemp(s, 'op'))
-		),
-		--- REFINES
-		
-		--- SETS
+		)
+	do {
+		thisModule.debug('RDF2Refinement: done!');
+	}
+}
+
+rule initAMNSets(rd: SW!RDFDocument) {
+	to
 		classSet: AMN!SetDecl(
 			name <- 'IC',
 			element <- 'Thing',
 			element <- rd.owlClass->collect(c|c.shortName)
 		),
-		--- DEFINITIONS
-		defin: AMN!Definition(
+		objProSet: AMN!SetDecl(
+			name <- 'IP',
+			element <- rd.owlObjectProperty->collect(o|o.shortName)	
+		)
+	do{
+		Sequence{classSet,
+				rd.owlDatatypeProperty->collect(o | thisModule.resolveTemp(o, 'range_set')),
+				objProSet};
+	}
+}
+
+rule initAMNDefinitions() {
+	to
+		definition: AMN!Definition(
 			name <- 'STRING_TYPE',
 			type <- 'seq(0..255)'
 		),
@@ -80,24 +80,59 @@ rule RDF2Refinement{
 		),
 		defVar: AMN!Variable(
 			name <- '0..255'
-		),
-		--- PROPERTIES
+		)
+	do {
+		definition;	
+	}
+}
+
+rule initAMNAbstractConstants(rd: SW!RDFDocument) {
+	do{
+		Sequence{'IS_IP',
+			rd.owlDatatypeProperty->collect(o | thisModule.ISIP_name_Range(o.range.shortName)),
+			rd.owlNamedIndividual->collect(o | o.shortName)
+		};
+	}
+}
+
+rule initAMNProperties(rd: SW!RDFDocument, abstractConstants: Sequence(String)) {
+	to
 		conjProperties: AMN!Conjunction(
-			predicate <- ref.abstractConstants->select(n|not thisModule.isInstance(n))->collect(ac | thisModule.initPropertiesIRI(ac)),
-			predicate <- ref.abstractConstants->select(n|not thisModule.isInstance(n))->collect(ac | thisModule.initPropertiesFIN(ac)),
-			predicate <- thisModule.initPropertiesDOM(ref.abstractConstants->select(a|not thisModule.isInstance(a))),
-			predicate <- thisModule.initPropertiesCardDOM(ref.abstractConstants->select(a|not thisModule.isInstance(a))),
+			predicate <- abstractConstants->select(n|not thisModule.isInstance(n))->collect(ac | thisModule.initPropertiesIRI(ac)),
+			predicate <- abstractConstants->select(n|not thisModule.isInstance(n))->collect(ac | thisModule.initPropertiesFIN(ac)),
+			predicate <- thisModule.initPropertiesDOM(abstractConstants->select(a|not thisModule.isInstance(a))),
+			predicate <- thisModule.initPropertiesCardDOM(abstractConstants->select(a|not thisModule.isInstance(a))),
 			predicate <- rd.owlNamedIndividual->collect(o|thisModule.initNamedIndividualProperties(o))
-		),
-		--- ABSTRACTVARIABLES
-		abstVariables: AMN!Variables(
-			name <- 'IEXT',
-			name <- 'ICEXT',
-			name <- rd.owlDatatypeProperty->collect(o | 'IEXT_' + o.range.shortName + '_Range')
-		),
-		--- INVARIANT
+		)
+	do{
+		conjProperties;
+	}
+}
+
+rule initAMNAbstractVariables(rd: SW!RDFDocument) {
+	using {
+		IEXT: String = 'IEXT';
+		ICEXT: String = 'ICEXT';
+	}
+	to
+		abstractVariables: AMN!Variables(
+			name <- IEXT,
+			name <- ICEXT,
+			name <- rd.owlDatatypeProperty->collect(o | thisModule.IEXT_name_Range(o.range.shortName))
+		)
+	do{
+		abstractVariables;	
+	}
+}
+
+rule initAMNInvariant(rd: SW!RDFDocument, abstractVariables: Sequence(AMN!Variables)) {
+	using {
+		IEXT: String = 'IEXT';
+		ICEXT: String = 'ICEXT';
+	}
+	to
 		inVariant: AMN!Conjunction(
-			predicate <- abstVariables.name->collect(o | thisModule.invariantFromAC(o)),
+			predicate <- abstractVariables->first().name->collect(o | thisModule.invariantFromAC(o)),
 			predicate <- Sequence{icPred2},
 			predicate <- rd.owlClass->select(c | 
 				c.subClassOf.size() > 0)
@@ -107,7 +142,7 @@ rule RDF2Refinement{
 			sign <- ':',
 			expression <- Sequence{leftVar, icExp}
 		),
-		leftVar: AMN!Variable(name <- avs),
+		leftVar: AMN!Variable(name <- ICEXT),
 		icExp: AMN!AtomicPredicate(
 			sign <- '-->',
 			expression <- Sequence{icVar, powIR}
@@ -123,20 +158,34 @@ rule RDF2Refinement{
 			expression <- Sequence{icThing, ricThing}
 		),
 		icThing: AMN!FunctionalExpression(
-			sign <- avs,
+			sign <- ICEXT,
 			expression <- icThingVar	
 		),
 		icThingVar: AMN!Variable(name <- 'Thing'),
-		ricThing: AMN!Variable(name <- 'IR'),
-		-- Properties INVARIANT
-		
-		--- Initialization
+		ricThing: AMN!Variable(name <- 'IR')
+	do{
+		Sequence{inVariant,
+			rd.owlObjectProperty->collect(o|thisModule.resolveTemp(o, 'inv_card')),
+			rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(c|thisModule.resolveTemp(c, 'domain_rel')),
+			rd.owlObjectProperty->select(o|not thisModule.isEnumDatatype(o.shortName))->collect(c|thisModule.resolveTemp(c, 'range_rel')),
+			SW!Restriction.allInstances()->collect(r | thisModule.ClassRestriction2Invariant(r))
+		};
+	}
+}
+
+rule initAMNInitialisation(rd: SW!RDFDocument) {
+	using {
+		IEXT: String = 'IEXT';
+		ICEXT: String = 'ICEXT';
+		properties: Set(SW!Property) = rd.owlDatatypeProperty.union(rd.owlObjectProperty);
+	}
+	to
 		icextInit: AMN!AtomicPredicate(
 			sign <- ':=',
 			expression <- Sequence{initVar, icextSet}
 		),
 		initVar: AMN!Variable(
-			name <- 'ICEXT'
+			name <- ICEXT
 		),
 		icextSet: AMN!SetValue(
 			value <- Set{initThing},
@@ -152,11 +201,13 @@ rule RDF2Refinement{
 		rThing:	AMN!StringValue(
 			value <- 'IR'
 		)
-	do {
-		thisModule.debug('RDF2Refinement:' + rd.sparql->first().prefix->first().name + ' done!');
+	do{
+		Sequence{
+			properties->select(p|not thisModule.isEnumDatatype(p.shortName))->collect(p|thisModule.properties2init(p)),
+			icextInit
+		};
 	}
 }
-
 
 rule Ontology2Predicate {
 	from
@@ -276,16 +327,6 @@ rule DatatypeProperty2Predicate {
 	}
 }
 
-rule DatatypeProperty2AC(dp: SW!DatatypeProperty) {
-	using {
-		name: String = '';	
-	}
-	do{
-		name <- 'IS_IP_' +	dp.range.shortName + '_Range';
-		name;
-	}	
-}
-
 rule invariantFromAC(variable: String){
 	using{
 
@@ -387,10 +428,10 @@ rule Sparql2Operations{
 		)
 }
 
-rule initRefines(ctxt: AMN!AbstractMachine, name: String, rd: SW!RDFDocument){
+rule initAMNRefines(ctxt: AMN!AbstractMachine, name: String, rd: SW!RDFDocument){
 	to 
 		am: AMN!AbstractMachine(
-			name <- name + 'AM', --ref.name + 'AM',
+			name <- name + 'AM',
 			sees <- ctxt,
 			definitions <- refsDef,
 			operations <- refsOper
@@ -400,7 +441,7 @@ rule initRefines(ctxt: AMN!AbstractMachine, name: String, rd: SW!RDFDocument){
 			type <- 'seq(0..255)'
 		),
 		refsOper: AMN!Operation(
-			name <- 'patientsWithTumorOfStageIIIa', --- TODO: How to get such name?
+			name <- 'patientsWithTumorOfStageIIIa',
 			outputParams <- 'res',
 			substitution <- block
 		),
@@ -482,7 +523,7 @@ rule initRefines(ctxt: AMN!AbstractMachine, name: String, rd: SW!RDFDocument){
 	}
 }
 
-rule initACSet(p: SW!Property){
+rule properties2init(p: SW!Property){
 	using{
 
 		ac:String = if p.range.oclIsUndefined() then p.shortName else p.range.shortName endif;	
@@ -508,26 +549,20 @@ rule initACSet(p: SW!Property){
 			value <- '{}'
 		)
 	do{
-		if (p.range.oclIsUndefined()) {
-			-- enumeration datatype
-			ac <- 'IEXT_dt' + ac + '_Range';
+		if (thisModule.isBuiltinDatatype(p.range.shortName)) {
+			-- built-in datatype
+			ac <- thisModule.IEXT_name_Range(ac);
 		}
-		else{
-			if (thisModule.isBuiltinDatatype(p.range.shortName)) {
-				-- built-in datatype
-				ac <- 'IEXT_' + ac + '_Range';
-			}
-			else {
-				-- non built-in datatype
-				ac <- 'IEXT';
-			}
+		else {
+			-- non built-in datatype
+			ac <- 'IEXT';
 		}
 		initVar.name <- ac;
 		icextInit;	
 	}
 }
 
-lazy rule initClassRestrictionInvariant{
+lazy rule ClassRestriction2Invariant{
 	from r: SW!Restriction
 	using {
 		diseaseStage: String = r.allValuesFrom.shortName;
@@ -829,7 +864,7 @@ lazy rule initClassHierarchy{
 }
 
 --- Init ObjectProperty
-lazy rule initObjectPropertySet{
+lazy rule ObjectProperties2Set{
 	from rd: sw!RDFDocument
 	using {
 		setName: String = 'IP';
@@ -1083,6 +1118,18 @@ lazy rule initNamedIndividualProperties{
 	
 }
 
+helper def: ISIP_name_Range(name: String): String = 
+	'IS_IP_' +	name + '_Range'
+;
+
+helper def: IEXT_name_Range(name: String): String = 
+	'IEXT_' +	name + '_Range'
+;
+
+helper def: refinementName(name: String): String = 
+	name.substring(1,1).toUpper() + name.substring(2,name.size())
+;
+
 helper def: isBuiltinDatatype(t: String): Boolean =
 	let builtinTypes: Set(String) = Set{'string', 'real', 'bool'} in
 	if builtinTypes.includes(t) then
@@ -1106,4 +1153,4 @@ helper def: isInstance(n: String): Boolean =
 	else
 		false
 	endif
-; 
+;
