@@ -798,7 +798,6 @@ rule selectWhere2Predicate(s: SW!SparqlQuery, pattern: SW!TriplePattern){
 				}
 			}
 		}
-		
 	}
 }
 
@@ -824,12 +823,12 @@ rule initClass(rd:SW!RDFDocument, c:SW!Class) {
 				values <- values->including(n.shortName); 
 			}
 		}
-		rightExp.value <- values->collect(v|thisModule.InitClassSetVal(v));
+		rightExp.value <- values->collect(v|thisModule.createStringValue(v));
 		ap;	
 	}
 }
 
-rule InitClassSetVal(n: String) {
+rule createStringValue(n: String) {
 	to 
 		s: AMN!StringValue(
 			value <- n	
@@ -860,20 +859,6 @@ lazy rule initClassHierarchy{
 		),
 		rightVar: AMN!StringValue(
 			value <- c.shortName
-		)
-}
-
---- Init ObjectProperty
-lazy rule ObjectProperties2Set{
-	from rd: sw!RDFDocument
-	using {
-		setName: String = 'IP';
-	}
-	to
-		--- SETS
-		initSet: AMN!SetDecl(
-			name <- 'IP',
-			element <- rd.owlObjectProperty->collect(o|o.shortName)	
 		)
 }
 
